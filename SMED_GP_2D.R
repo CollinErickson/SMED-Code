@@ -39,7 +39,7 @@ if (F) {
     
     # Or use default
     gsa.out <- GenSA::GenSA(par=NULL,fn=function(xx)log(f_min(xx,X,kk=k)),lower=c(0,0),upper=c(1,1),control = list(trace.mat=F,max.time=1))
-  
+    
     # Add new point
     xnew <- gsa.out$par
     X <- rbind(X,xnew)
@@ -48,25 +48,20 @@ if (F) {
 }
 
 SMED_2D <- function(f,n=10,nc=100,max.time=NULL) {
-  # SMED in 2D
-  #  f: function
-  #  n: # of pts to select
-  #  nc: # of pts in contour plot
-  #  max.time: max.time for GenSA optimization for each point
-  
-  #source('TestFunctions.R')
-  # source('myfilledcontour.R')
-  
   p <- 2 # dimension
   k <- 4*p # MED distance thing
   GenSA.controls <- list(trace.mat=F)
   if(!is.null(max.time)) GenSA.controls[['max.time']] <- max.time
   
+  predict.GP.SMED <- GPfit::predict.GP
+  fit.GP.SMED <- GPfit::GP_fit
+  
   # Charge function qq
-  qq <- function(xx){f(xx)^-(1/(2*p))}
+  #qq <- function(xx){f(xx)^-(1/(2*p))}
+  qq <- function(xx,mod){(predict.GP.SMED(mod,xx))^-(1/(2*p))}
   # Function we will optimize
-  f_min <- function(xnew,xall,kk) {
-    qq(xnew)^kk*sum(apply(xall,1,function(xx){(qq(xx)/(sqrt(sum((xx-xnew)^2))))^kk}))
+  f_min <- function(xnew,xall,kk,mod) {
+    qq(xnew,mod=mod)^kk*sum(apply(xall,1,function(xx){(qq(xx,mod=mod)/(sqrt(sum((xx-xnew)^2))))^kk}))
   }
   
   # Get contour plot
@@ -75,19 +70,27 @@ SMED_2D <- function(f,n=10,nc=100,max.time=NULL) {
   for (xi in 1:nc) for(yi in 1:nc) fz[xi,yi] <- f(matrix(c(fx[xi],fy[yi]),1,2))
   #contour(fx,fy,fz,nlevels = 5) # This had legend, don't want it
   my.filled.contour(fx,fy,fz,nlevels = 5)
- 
+  
   # Initialize with mode
   gsa.out <- GenSA::GenSA(par=NULL,fn=function(xx)-f(xx),lower=c(0,0),upper=c(1,1),control = list(trace.mat=F))
   X <- matrix(gsa.out$par,1,2)
+  Y <- -gsa.out$val
   text(X[1],X[2],labels=1,col=1,pch=1)
   
+  browser()
   # Get rest of points
   for(i in 2:n) {
+    
+    
+    # Create GP model
+    mod <- fit.GP.SMED(X=X, Y=Y)
+    
     # Use log scale for optimization, had trouble before when numbers were 1e88
-    gsa.out <- GenSA::GenSA(par=NULL,fn=function(xx)log(f_min(xx,X,kk=k)),lower=c(0,0),upper=c(1,1),control = GenSA.controls)
+    gsa.out <- GenSA::GenSA(par=NULL,fn=function(xx)log(f_min(xx,X,kk=k,mod=mod)),lower=c(0,0),upper=c(1,1),control = GenSA.controls)
     # Add new point
     xnew <- gsa.out$par
     X <- rbind(X,xnew)
+    Y <- c(Y,f(xnew))
     text(x=xnew[1],y=xnew[2],labels=i,col=1)
   }
   # Return design matrix
