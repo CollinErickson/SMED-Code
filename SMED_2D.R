@@ -54,7 +54,7 @@ SMED_2D <- function(f,n=10,nc=100,max.time=NULL) {
   #  nc: # of pts in contour plot
   #  max.time: max.time for GenSA optimization for each point
   
-  #source('TestFunctions.R')
+  # source('TestFunctions.R')
   # source('myfilledcontour.R')
   
   p <- 2 # dimension
