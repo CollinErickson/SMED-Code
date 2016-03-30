@@ -48,18 +48,19 @@ if (F) {
 }
 
 SMED_2D <- function(f,n=10,nc=100,max.time=NULL) {
-  # SMED in 2D
+  # Function for SMED in 2D
+  # Input:
   #  f: function
   #  n: # of pts to select
   #  nc: # of pts in contour plot
   #  max.time: max.time for GenSA optimization for each point
   
   # source('TestFunctions.R')
-  # source('myfilledcontour.R')
+   source('myfilledcontour.R')
   
   p <- 2 # dimension
   k <- 4*p # MED distance thing
-  GenSA.controls <- list(trace.mat=F)
+  GenSA.controls <- list(trace.mat=F) # Optimization parameters
   if(!is.null(max.time)) GenSA.controls[['max.time']] <- max.time
   
   # Charge function qq
@@ -70,12 +71,8 @@ SMED_2D <- function(f,n=10,nc=100,max.time=NULL) {
   }
   
   # Get contour plot
-  fx <- fy <- seq(0,1,length.out = nc)
-  fz <- matrix(0,nc,nc)
-  for (xi in 1:nc) for(yi in 1:nc) fz[xi,yi] <- f(matrix(c(fx[xi],fy[yi]),1,2))
-  #contour(fx,fy,fz,nlevels = 5) # This had legend, don't want it
-  my.filled.contour(fx,fy,fz,nlevels = 5)
- 
+  my.filled.contour.func(f,nlevels=5)
+  
   # Initialize with mode
   gsa.out <- GenSA::GenSA(par=NULL,fn=function(xx)-f(xx),lower=c(0,0),upper=c(1,1),control = list(trace.mat=F))
   X <- matrix(gsa.out$par,1,2)
@@ -87,13 +84,14 @@ SMED_2D <- function(f,n=10,nc=100,max.time=NULL) {
     gsa.out <- GenSA::GenSA(par=NULL,fn=function(xx)log(f_min(xx,X,kk=k)),lower=c(0,0),upper=c(1,1),control = GenSA.controls)
     # Add new point
     xnew <- gsa.out$par
-    X <- rbind(X,xnew)
+    X <- rbind(X,unname(xnew))
     text(x=xnew[1],y=xnew[2],labels=i,col=1)
   }
   # Return design matrix
-  rownames(X) <- NULL
   return(X)
 }
 if (F) {
+  setwd("C:/Users/cbe117/School/DOE/SMED/SMED-Code")
+  source('TestFunctions.R')
   SMED_2D(banana,n=10,max.time=.2)
 }
