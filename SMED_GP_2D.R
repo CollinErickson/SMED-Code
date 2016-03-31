@@ -33,7 +33,7 @@ SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='laGP',contour.fit=0,conti
     require('laGP')
     init.GP.SMED <- function(X,Y) {laGP::newGPsep(X=X,Z=Y,d=2,g=1e-6)}
     update.GP.SMED <- function(mod,X,Y) {laGP::updateGPsep(gpsepi=mod,X=X,Z=Y);return(mod)}
-    predict.GP.SMED <- function(mod,xx){max(0,laGP::predGPsep(mod,matrix(xx,1,2))$mean)}
+    predict.GP.SMED <- function(mod,xx){max(1e-16,laGP::predGPsep(mod,matrix(xx,1,2))$mean)}
       # Changed this predict, really bad now
     delete.GP.SMED <- laGP::deleteGPsep
   } else if(GP.package=='mlegp') {
@@ -123,7 +123,7 @@ if (F) {
   source('TestFunctions.R')
   SMED_GP_2D(f=banana,n0=10,n=10,max.time=.2)
   SMED_GP_2D(f=banana,n0=10,n=30,contour.fit=1,GP.package='mlegp')
-  SMED_GP_2D(f=banana,n0=10,n=5,contour.fit=1,GP.package='laGP',continue.option=T)
-  SMED_GP_2D(f=function(x){exp(-(sum((x-.5)^2)))},n0=10,n=5,contour.fit=1,GP.package='mlegp',continue.option=T)
+  SMED_GP_2D(f=banana,n0=50,n=5,contour.fit=1,GP.package='laGP',continue.option=T)
+  SMED_GP_2D(f=function(x){exp(-(sum((x-.5)^2))/.01)},n0=10,n=5,contour.fit=1,GP.package='laGP',continue.option=T)
   SMED_GP_2D(f=banana,n0=10,n=5,contour.fit=1,GP.package='exact',continue.option=T)
 }
