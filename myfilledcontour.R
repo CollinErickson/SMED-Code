@@ -83,11 +83,14 @@ my.filled.contour <-
     invisible()
 }
 
-my.filled.contour.func <- function(fn,n=100,...) {
+my.filled.contour.func <- function(fn,n=100,mainminmax=T,...) {
   x <- seq(0,1,length.out = n)
   y <- seq(0,1,length.out = n)
   z <- matrix(NA,n,n)
   for(xi in 1:n) for(yi in 1:n) z[xi,yi] <- fn(c(x[xi],y[yi]))
   #browser()
-  my.filled.contour(x,y,z,...)
+  if(mainminmax)
+    my.filled.contour(x,y,z,main=paste(signif(c(min(z),max(z)),3)),...)
+  else
+    my.filled.contour(x,y,z,...)
 }
