@@ -83,11 +83,31 @@ my.filled.contour <-
     invisible()
 }
 
-my.filled.contour.func <- function(fn,n=100,mainminmax=T,...) {
-  x <- seq(0,1,length.out = n)
-  y <- seq(0,1,length.out = n)
+my.filled.contour.func <- function(fn,n=100,xcontlim=c(0,1),ycontlim=c(0,1),mainminmax=T,batchmax=1,...) {
+  x <- seq(xcontlim[1],xcontlim[2],length.out = n)
+  y <- seq(ycontlim[1],ycontlim[2],length.out = n)
   z <- matrix(NA,n,n)
-  for(xi in 1:n) for(yi in 1:n) z[xi,yi] <- fn(c(x[xi],y[yi]))
+  if(batchmax<=1) { # calculate single Z value at a time
+    for(xi in 1:n) for(yi in 1:n) z[xi,yi] <- fn(c(x[xi],y[yi]))
+  } else {#browser()
+    inbatch <- 0
+    for(xi in 1:n) {
+      for(yi in 1:n) {
+        if(inbatch==0) XYi <- matrix(c(xi,yi),ncol=2)
+        else XYi <- rbind(XYi,matrix(c(xi,yi),ncol=2))
+        inbatch <- inbatch + 1
+        if(inbatch == batchmax | (xi==n & yi==n)) {
+          Zbatch <- fn(matrix(c(x[XYi[,1]],y[XYi[,2]]),ncol=2,byrow=F))
+          #z[XYi[,1],XYi[,2]] <- fn(c(x[xi],y[yi]))
+          for(rowbatch in 1:length(Zbatch)) {
+            z[XYi[rowbatch,1],XYi[rowbatch,2]] <- Zbatch[rowbatch]
+          }
+          inbatch <- 0
+          rm(XYi)
+        }
+      }
+    }
+  }
   #browser()
   if(mainminmax)
     my.filled.contour(x,y,z,main=paste(signif(c(min(z),max(z)),3)),...)
