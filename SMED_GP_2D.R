@@ -1,4 +1,4 @@
-SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='laGP',opt.method='genoud',contour.fit=0,continue.option=F) {
+SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',contour.fit=0,continue.option=F) {
   # Function that implements SMED with GP in 2 dimensions. Using the GP means you 
   #  only get the function value from points you have selected, selection is 
   #  based on the GP model predictions
@@ -149,7 +149,6 @@ SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='laGP',opt.method='genoud'
 if (F) {
   setwd("C:/Users/cbe117/School/DOE/SMED/SMED-Code")
   source('TestFunctions.R')
-  SMED_GP_2D(f=banana,n0=10,n=10,max.time=.2)
   SMED_GP_2D(f=banana,n0=10,n=30,contour.fit=1,GP.package='mlegp')
   SMED_GP_2D(f=banana,n0=50,n=5,contour.fit=1,GP.package='laGP',continue.option=T)
   SMED_GP_2D(f=function(x){exp(-(sum((x-.5)^2))/.01)},n0=10,n=5,contour.fit=1,GP.package='laGP',continue.option=T)
