@@ -68,6 +68,15 @@ get.elevation <- function(X) {
   }
   elev_df$elev
 }
+rescale1D <- function(x,xlim) {
+  (x-min(x))/(max(x)-min(x)) * (xlim[2] - xlim[1]) + xlim[1]
+}
+rescale2D <- function(x,xlim,ylim) {
+  if (dim(x)[2] != 2) {stop('x must have two columns')}
+  x[,1] <- rescale1D(x[,1],xlim)
+  x[,2] <- rescale1D(x[,2],ylim)
+  return(x)
+}
 
 if (F) {
   StLouisCntyMN <- c(47.882,-92.476)
@@ -78,6 +87,7 @@ if (F) {
   Colorado.ylim <- c(36.996650,40.999198)
   X.LHS <- lhs::maximinLHS(n=40,k=2)
   X.Colorado <- t(apply(X.LHS,1,function(xrow) return(c(xrow[1]*(Colorado.xlim[2]-Colorado.xlim[1])+Colorado.xlim[1],xrow[2]*(Colorado.ylim[2]-Colorado.ylim[1])+Colorado.ylim[1]))))
+  X.Colorado <- rescale2D(X.LHS,Colorado.xlim,Colorado.ylim)
   get.elevation(c(40,-100))
   # Google elevation only takes 92 at a time, 93+ will return an error
   my.filled.contour.func(get.elevation,n=9,xcontlim=Colorado.xlim,ycontlim=Colorado.ylim,batchmax = 90)
