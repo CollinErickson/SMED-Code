@@ -19,7 +19,7 @@ SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',con
   k <- 4 * p # MED distance power, k=4p is recommended by Roshan
   
   # source('TestFunctions.R') # Not sure if I should source test functions here or outside
-  source('myfilledcontour.R') # Source myfilledcontour.R to get contour plots
+  ###FIX THIS  source('myfilledcontour.R') # Source myfilledcontour.R to get contour plots
   require('lhs') # Use lhs to get initial points
   
   # Set GP functions for each package
@@ -73,7 +73,8 @@ SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',con
   
   
   # Get contour plot
-  my.filled.contour.func(fn=f,n=nc)
+  #my.filled.contour.func(fn=f,n=nc)
+  contour.filled.func(fn=f,n=nc)
   
   # Initialize with LHS
   X <- lhs::maximinLHS(n=n0,k=2)
@@ -91,7 +92,8 @@ SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',con
   while(i <= n) {
     # Plot contour of fit if iteration is multiple of contour.fit
     if(contour.fit>0 & i%%contour.fit==0) {
-      my.filled.contour.func(function(xx)predict.GP.SMED(mod,xx))
+      #my.filled.contour.func(function(xx)predict.GP.SMED(mod,xx))
+      contour.filled.func(function(xx)predict.GP.SMED(mod,xx))
       text(x=X[,1],y=X[,2],col=ifelse(keep.Delta,'magenta','springgreen3'))
     }
     # Perform optimzation to select next point, use log scale
@@ -139,7 +141,8 @@ SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',con
     i <- i + 1
   }
   # Print final contour of estimated surface
-  my.filled.contour.func(function(xx)predict.GP.SMED(mod,xx))
+  #my.filled.contour.func(function(xx)predict.GP.SMED(mod,xx))
+  contour.filled.func(function(xx)predict.GP.SMED(mod,xx))
   text(x=X[,1],y=X[,2],col='magenta')
   # Delete model if needed (only laGP)
   delete.GP.SMED(mod)
@@ -149,7 +152,7 @@ SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',con
 if (F) {
   setwd("C:/Users/cbe117/School/DOE/SMED/SMED-Code")
   source('TestFunctions.R')
-  SMED_GP_2D(f=banana,n0=10,n=30,contour.fit=1,GP.package='mlegp')
+  SMED_GP_2D(f=banana,n0=10,n=30,contour.fit=1,GP.package='mlegp',continue.option=T)
   SMED_GP_2D(f=banana,n0=50,n=5,contour.fit=1,GP.package='laGP',continue.option=T)
   SMED_GP_2D(f=function(x){exp(-(sum((x-.5)^2))/.01)},n0=10,n=5,contour.fit=1,GP.package='laGP',continue.option=T)
   SMED_GP_2D(f=banana,n0=10,n=5,contour.fit=1,GP.package='exact',continue.option=T)

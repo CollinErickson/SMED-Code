@@ -19,7 +19,7 @@ SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='laGP',opt.method='genoud'
   k <- 4 * p # MED distance power, k=4p is recommended by Roshan
   
   # source('TestFunctions.R') # Not sure if I should source test functions here or outside
-  source('myfilledcontour.R') # Source myfilledcontour.R to get contour plots
+  ##### FIXsource('myfilledcontour.R') # Source myfilledcontour.R to get contour plots
   require('lhs') # Use lhs to get initial points
   
   # Set GP functions for each package
@@ -75,7 +75,8 @@ SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='laGP',opt.method='genoud'
   
   # Get contour plot
   par(mfrow=c(2,1))
-  my.filled.contour.func(fn=f,n=nc)
+  #my.filled.contour.func(fn=f,n=nc)
+  contour.filled.func(fn=f,n=nc)
   plot(1:4)
   
   # Initialize with LHS
@@ -94,9 +95,11 @@ SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='laGP',opt.method='genoud'
   while(i <= n) {
     # Plot contour of fit if iteration is multiple of contour.fit
     if(contour.fit>0 & i%%contour.fit==0) {
-      my.filled.contour.func(function(xx)predict.plot.GP.SMED(mod,xx))
+      #my.filled.contour.func(function(xx)predict.plot.GP.SMED(mod,xx))
+      contour.filled.func(function(xx)predict.plot.GP.SMED(mod,xx))
       text(x=X[,1],y=X[,2],col=ifelse(keep.Delta,'magenta','springgreen3'))
-      my.filled.contour.func(function(xx)predict.GP.SMED(mod,xx))
+      #my.filled.contour.func(function(xx)predict.GP.SMED(mod,xx))
+      contour.filled.func(function(xx)predict.GP.SMED(mod,xx))
       text(x=X[,1],y=X[,2],col=ifelse(keep.Delta,'magenta','springgreen3'))
       readline(prompt = 'Press <enter> to continue ')
     }
@@ -145,7 +148,8 @@ SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='laGP',opt.method='genoud'
     i <- i + 1
   }
   # Print final contour of estimated surface
-  my.filled.contour.func(function(xx)predict.plot.GP.SMED(mod,xx))
+  #my.filled.contour.func(function(xx)predict.plot.GP.SMED(mod,xx))
+  contour.filled.func(function(xx)predict.plot.GP.SMED(mod,xx))
   text(x=X[,1],y=X[,2],col=ifelse(keep.Delta,'magenta','springgreen3'))
   my.filled.contour.func(function(xx)predict.GP.SMED(mod,xx))
   text(x=X[,1],y=X[,2],col='magenta')

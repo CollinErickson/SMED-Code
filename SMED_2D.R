@@ -7,7 +7,7 @@ SMED_2D <- function(f,n=10,nc=100,max.time=NULL) {
   #  max.time: max.time for GenSA optimization for each point
   
   # source('TestFunctions.R')
-   source('myfilledcontour.R')
+  # source('myfilledcontour.R')
   
   p <- 2 # dimension
   k <- 4*p # MED distance thing
@@ -22,7 +22,8 @@ SMED_2D <- function(f,n=10,nc=100,max.time=NULL) {
   }
   
   # Get contour plot
-  my.filled.contour.func(f,nlevels=5)
+  #my.filled.contour.func(f,nlevels=5)
+  contour.filled.func(f,nlevels=5)
   
   # Initialize with mode
   gsa.out <- GenSA::GenSA(par=NULL,fn=function(xx)-f(xx),lower=c(0,0),upper=c(1,1),control = list(trace.mat=F))

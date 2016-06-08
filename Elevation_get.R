@@ -120,4 +120,6 @@ if (F) {
   get.elevation(c(40,-100))
   # Google elevation only takes 92 at a time, 93+ will return an error
   my.filled.contour.func(get.elevation,n=21,xcontlim=Colorado.xlim,ycontlim=Colorado.ylim,batchmax = 90,out.col.name = 'elev')
+  contour.filled.func(get.elevation,n=21,xcontlim=Colorado.xlim,ycontlim=Colorado.ylim,batchmax = 90,out.col.name = 'elev')
+  contour.filled.func(get.elevation,n=41,xcontlim=Colorado.xlim,ycontlim=Colorado.ylim,batchmax = 90,out.col.name = 'elev')
 }
