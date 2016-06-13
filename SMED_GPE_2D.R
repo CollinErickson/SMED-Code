@@ -1,4 +1,4 @@
-SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='laGP',opt.method='genoud',contour.fit=0,continue.option=F) {
+SMED_GPE_2D <- function(f,n0=10,n=10,nc=100,GP.package='laGP',opt.method='genoud',contour.fit=0,continue.option=F) {
   # Function that implements SMED with GP in 2 dimensions. Using the GP means you 
   #  only get the function value from points you have selected, selection is 
   #  based on the GP model predictions
@@ -76,7 +76,7 @@ SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='laGP',opt.method='genoud'
   # Get contour plot
   par(mfrow=c(2,1))
   #my.filled.contour.func(fn=f,n=nc)
-  contour.filled.func(fn=f,n=nc)
+  contourfilled.func(fn=f,n=nc)
   plot(1:4)
   
   # Initialize with LHS
@@ -96,10 +96,10 @@ SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='laGP',opt.method='genoud'
     # Plot contour of fit if iteration is multiple of contour.fit
     if(contour.fit>0 & i%%contour.fit==0) {
       #my.filled.contour.func(function(xx)predict.plot.GP.SMED(mod,xx))
-      contour.filled.func(function(xx)predict.plot.GP.SMED(mod,xx))
+      contourfilled.func(function(xx)predict.plot.GP.SMED(mod,xx))
       text(x=X[,1],y=X[,2],col=ifelse(keep.Delta,'magenta','springgreen3'))
       #my.filled.contour.func(function(xx)predict.GP.SMED(mod,xx))
-      contour.filled.func(function(xx)predict.GP.SMED(mod,xx))
+      contourfilled.func(function(xx)predict.GP.SMED(mod,xx))
       text(x=X[,1],y=X[,2],col=ifelse(keep.Delta,'magenta','springgreen3'))
       readline(prompt = 'Press <enter> to continue ')
     }
@@ -149,7 +149,7 @@ SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='laGP',opt.method='genoud'
   }
   # Print final contour of estimated surface
   #my.filled.contour.func(function(xx)predict.plot.GP.SMED(mod,xx))
-  contour.filled.func(function(xx)predict.plot.GP.SMED(mod,xx))
+  contourfilled.func(function(xx)predict.plot.GP.SMED(mod,xx))
   text(x=X[,1],y=X[,2],col=ifelse(keep.Delta,'magenta','springgreen3'))
   my.filled.contour.func(function(xx)predict.GP.SMED(mod,xx))
   text(x=X[,1],y=X[,2],col='magenta')
@@ -161,8 +161,8 @@ SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='laGP',opt.method='genoud'
 if (F) {
   setwd("C:/Users/cbe117/School/DOE/SMED/SMED-Code")
   source('TestFunctions.R')
-  SMED_GP_2D(f=banana,n0=10,n=10,max.time=.2)
-  SMED_GP_2D(f=banana,n0=10,n=30,contour.fit=1,GP.package='mlegp')
+  SMED_GPE_2D(f=banana,n0=10,n=10,max.time=.2)
+  SMED_GPE_2D(f=banana,n0=10,n=30,contour.fit=1,GP.package='mlegp')
   SMED_GP_2D(f=banana,n0=50,n=5,contour.fit=1,GP.package='laGP',continue.option=T)
   SMED_GP_2D(f=function(x){exp(-(sum((x-.5)^2))/.01)},n0=10,n=5,contour.fit=1,GP.package='laGP',continue.option=T)
   SMED_GP_2D(f=banana,n0=10,n=5,contour.fit=1,GP.package='exact',continue.option=T)

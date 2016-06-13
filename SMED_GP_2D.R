@@ -74,7 +74,7 @@ SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',con
   
   # Get contour plot
   #my.filled.contour.func(fn=f,n=nc)
-  contour.filled.func(fn=f,n=nc)
+  contourfilled.func(fn=f,n=nc)
   
   # Initialize with LHS
   X <- lhs::maximinLHS(n=n0,k=2)
@@ -93,7 +93,7 @@ SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',con
     # Plot contour of fit if iteration is multiple of contour.fit
     if(contour.fit>0 & i%%contour.fit==0) {
       #my.filled.contour.func(function(xx)predict.GP.SMED(mod,xx))
-      contour.filled.func(function(xx)predict.GP.SMED(mod,xx))
+      contourfilled.func(function(xx)predict.GP.SMED(mod,xx))
       text(x=X[,1],y=X[,2],col=ifelse(keep.Delta,'magenta','springgreen3'))
     }
     # Perform optimzation to select next point, use log scale
@@ -142,7 +142,7 @@ SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',con
   }
   # Print final contour of estimated surface
   #my.filled.contour.func(function(xx)predict.GP.SMED(mod,xx))
-  contour.filled.func(function(xx)predict.GP.SMED(mod,xx))
+  contourfilled.func(function(xx)predict.GP.SMED(mod,xx))
   text(x=X[,1],y=X[,2],col='magenta')
   # Delete model if needed (only laGP)
   delete.GP.SMED(mod)
