@@ -105,6 +105,7 @@ rescale2D <- function(x,xlim,ylim,oldxlim=NULL,oldylim=NULL) {
 if (F) {
   setwd("C:/Users/cbe117/School/DOE/SMED/SMED-Code")
   source('C:/Users/cbe117/School/DOE/SMED/SMED-Code/myfilledcontour.R')
+  source('C:/Users/cbe117/School/DOE/Codes/contour/contourfilled/R/contourfilled.R')
   require(RCurl)
   require(XML)
   StLouisCntyMN <- c(47.882,-92.476)
@@ -119,7 +120,7 @@ if (F) {
   cbind(X.Colorado,X.Colorado2)
   get.elevation(c(40,-100))
   # Google elevation only takes 92 at a time, 93+ will return an error
-  my.filled.contour.func(get.elevation,n=21,xcontlim=Colorado.xlim,ycontlim=Colorado.ylim,batchmax = 90,out.col.name = 'elev')
-  contour.filled.func(get.elevation,n=21,xcontlim=Colorado.xlim,ycontlim=Colorado.ylim,batchmax = 90,out.col.name = 'elev')
-  contour.filled.func(get.elevation,n=41,xcontlim=Colorado.xlim,ycontlim=Colorado.ylim,batchmax = 90,out.col.name = 'elev')
+  #my.filled.contour.func(get.elevation,n=21,xcontlim=Colorado.xlim,ycontlim=Colorado.ylim,batchmax = 90,out.col.name = 'elev')
+  contourfilled.func(get.elevation,n=21,xcontlim=Colorado.xlim,ycontlim=Colorado.ylim,batchmax = 90,out.col.name = 'elev')
+  contourfilled.func(get.elevation,n=41,xcontlim=Colorado.xlim,ycontlim=Colorado.ylim,batchmax = 90,out.col.name = 'elev')
 }
