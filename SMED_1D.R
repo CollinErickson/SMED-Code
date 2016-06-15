@@ -1,4 +1,3 @@
-
 SMED_1D <- function(f,n=10,navail=1000,kk=4,xmin=0,xmax=1,include.histogram=F) {
   # Function that implements SMED in 1D. Estimates probability distribution
   #  f: density function
@@ -6,6 +5,7 @@ SMED_1D <- function(f,n=10,navail=1000,kk=4,xmin=0,xmax=1,include.histogram=F) {
   #  navail: # of pts to use as candidates
   #  kk: power to use for MED. k=4p is default
   #  xmin, xmax: limits on inputs
+  #  include.histogram - whether to plot histogram at end
   
   # Charge function
   qq <- function(xx){f(xx)^-.5} 
@@ -37,6 +37,7 @@ SMED_1D <- function(f,n=10,navail=1000,kk=4,xmin=0,xmax=1,include.histogram=F) {
     text(xnew,f(xnew),i,col=4)
     points(xnew,0,col=2)
   }
+  if (include.histogram) hist(X,breaks=20)
   return(X)
 }
 if (F) {
