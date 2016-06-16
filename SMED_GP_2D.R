@@ -20,7 +20,7 @@ SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',con
   
   # source('TestFunctions.R') # Not sure if I should source test functions here or outside
   # source('myfilledcontour.R') # Source myfilledcontour.R to get contour plots
-  library(contourfilled) # Contour functions should come from package
+  require('contourfilled') # Contour functions should come from package
   require('lhs') # Use lhs to get initial points
   
   # Set GP functions for each package
@@ -151,9 +151,9 @@ SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',con
   return(cbind(X,Y))
 }
 if (F) {
-  setwd("C:/Users/cbe117/School/DOE/SMED/SMED-Code")
+  #setwd("C:/Users/cbe117/School/DOE/SMED/SMED-Code")
   source('TestFunctions.R')
-  SMED_GP_2D(f=banana,n0=10,n=30,contour.fit=1,GP.package='mlegp',continue.option=T)
+  SMED_GP_2D(f=banana,n0=10,n=10,contour.fit=1,GP.package='mlegp',continue.option=T)
   SMED_GP_2D(f=banana,n0=50,n=5,contour.fit=1,GP.package='laGP',continue.option=T)
   SMED_GP_2D(f=function(x){exp(-(sum((x-.5)^2))/.01)},n0=10,n=5,contour.fit=1,GP.package='laGP',continue.option=T)
   SMED_GP_2D(f=banana,n0=10,n=5,contour.fit=1,GP.package='exact',continue.option=T)
