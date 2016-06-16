@@ -20,7 +20,7 @@ SMED_GPE_2D <- function(f,n0=10,n=10,nc=100,GP.package='laGP',opt.method='genoud
   
   # source('TestFunctions.R') # Not sure if I should source test functions here or outside
   # source('myfilledcontour.R') # Source myfilledcontour.R to get contour plots
-  library(contourfilled)
+  require('contourfilled')
   require('lhs') # Use lhs to get initial points
   
   # Set GP functions for each package
