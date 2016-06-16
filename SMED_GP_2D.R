@@ -19,7 +19,8 @@ SMED_GP_2D <- function(f,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',con
   k <- 4 * p # MED distance power, k=4p is recommended by Roshan
   
   # source('TestFunctions.R') # Not sure if I should source test functions here or outside
-  ###FIX THIS  source('myfilledcontour.R') # Source myfilledcontour.R to get contour plots
+  # source('myfilledcontour.R') # Source myfilledcontour.R to get contour plots
+  library(contourfilled) # Contour functions should come from package
   require('lhs') # Use lhs to get initial points
   
   # Set GP functions for each package
