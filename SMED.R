@@ -1,7 +1,8 @@
-SMED <- function(f,d,n=10,nc=100,max.time=NULL) {
+SMED <- function(f,p,n=10,nc=100,max.time=NULL) {
   # Function for SMED in 2D
   # Input:
   #  f: function
+  #  p: # of dimensions
   #  n: # of pts to select
   #  nc: # of pts in contour plot
   #  max.time: max.time for GenSA optimization for each point
@@ -9,7 +10,7 @@ SMED <- function(f,d,n=10,nc=100,max.time=NULL) {
   # source('TestFunctions.R')
   # source('myfilledcontour.R')
   
-  p <- d # dimension
+  #p <- d # dimension
   k <- 4*p # MED distance thing
   GenSA.controls <- list(trace.mat=F) # Optimization parameters
   if(!is.null(max.time)) GenSA.controls[['max.time']] <- max.time
@@ -45,6 +46,9 @@ SMED <- function(f,d,n=10,nc=100,max.time=NULL) {
       text(x=xnew[1],y=xnew[2],labels=i,col=1)
     }
   }
+  if (p>2) {
+    pairs(X)
+  }
   # Return design matrix
   return(X)
 }
@@ -52,6 +56,6 @@ if (F) {
   #setwd("C:/Users/cbe117/School/DOE/SMED/SMED-Code")
   source('TestFunctions.R')
   source('C:/Users/cbe117/School/DOE/Codes/contour/contourfilled/R/contourfilled.R')
-  SMED(banana,d=2,n=10,max.time=.2)
-  SMED(function(xx){xx[1]+xx[2]^2-sin(2*pi*xx[3])},d=3,n=10,max.time=.2)
+  SMED(banana,p=2,n=10,max.time=.2)
+  SMED(function(xx){xx[1]+xx[2]^2-sin(2*pi*xx[3])},p=3,n=10,max.time=.2)
 }
