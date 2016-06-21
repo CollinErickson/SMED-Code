@@ -75,17 +75,21 @@ SMED_GP <- function(f,p,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',cont
   }
   
   
-  # Get contour plot
-  #my.filled.contour.func(fn=f,n=nc)
-  contourfilled.func(fn=f,n=nc)
+  if (p==2) {
+    # Get contour plot
+    #my.filled.contour.func(fn=f,n=nc)
+    contourfilled.func(fn=f,n=nc)
+  }
   
   # Initialize with LHS
   X <- lhs::maximinLHS(n=n0,k=p)
   Y <- apply(X,1,f)
   Delta <- .01 * max(Y)
   keep.Delta <- (Y > Delta)
-  # Plot where points are
-  text(X[,1],X[,2],col=ifelse(keep.Delta,'magenta','orange'))
+  if (p==2) {
+    # Plot where points are
+    text(X[,1],X[,2],col=ifelse(keep.Delta,'magenta','orange'))
+  }
   
   # Initialize model
   mod <- init.GP.SMED(X,Y)
@@ -96,13 +100,15 @@ SMED_GP <- function(f,p,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',cont
     # Plot contour of fit if iteration is multiple of contour.fit
     if(contour.fit>0 & i%%contour.fit==0) {
       #my.filled.contour.func(function(xx)predict.GP.SMED(mod,xx))
-      contourfilled.func(function(xx)predict.GP.SMED(mod,xx))
-      text(x=X[,1],y=X[,2],col=ifelse(keep.Delta,'magenta','springgreen3'))
+      if (p==2) {
+        contourfilled.func(function(xx)predict.GP.SMED(mod,xx))
+        text(x=X[,1],y=X[,2],col=ifelse(keep.Delta,'magenta','springgreen3'))
+      }
     }
     # Perform optimzation to select next point, use log scale
     # Different options for optimization, genoud is default
     if (opt.method=='genoud') { # First optimization option is genoud
-      opt.out <- rgenoud::genoud(fn=function(xx){points(xx[1],xx[2],pch=19,cex=.1,col=3);log(f_min(xx,X[keep.Delta,],kk=k,mod=mod))}
+      opt.out <- rgenoud::genoud(fn=function(xx){if (p==2) {points(xx[1],xx[2],pch=19,cex=.1,col=3)};log(f_min(xx,X[keep.Delta,],kk=k,mod=mod))}
                                  ,nvars=2,max.generations=3,hard.generation.limit=T
                                  ,Domains=matrix(c(0,0,1,1),2,2,byrow=F),boundary.enforcement=T,pop.size=50
                                  ,print.level=0
@@ -110,9 +116,13 @@ SMED_GP <- function(f,p,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',cont
     } else if (opt.method == 'LHS') { # Optimization method: check a bunch of LHS points, NOT GOOD
       #browser()
       XX.LHS <- lhs::maximinLHS(n=1000,k=p)
-      points(XX.LHS[,1],XX.LHS[,2],pch=19,cex=.1,col='orange')
+      if (p==2) {
+        points(XX.LHS[,1],XX.LHS[,2],pch=19,cex=.1,col='orange')
+      }
       log.f_min.LHS <- apply(XX.LHS,1,function(xx){log(f_min(xx,X[keep.Delta,],kk=k,mod=mod))})
-      points(XX.LHS[,1],XX.LHS[,2],pch=19,cex=.1,col=rgb(1,(1:100)/150,(1:100)/150)[floor(1+99*((log.f_min.LHS-min(log.f_min.LHS))/(max(log.f_min.LHS)-min(log.f_min.LHS))))])
+      if (p==2) {
+        points(XX.LHS[,1],XX.LHS[,2],pch=19,cex=.1,col=rgb(1,(1:100)/150,(1:100)/150)[floor(1+99*((log.f_min.LHS-min(log.f_min.LHS))/(max(log.f_min.LHS)-min(log.f_min.LHS))))])
+      }
       min.ind.LHS <- which.min(log.f_min.LHS)[1]
       opt.out <- list(par=XX.LHS[min.ind.LHS,],value=log.f_min.LHS[min.ind.LHS])
     } else {
@@ -124,7 +134,9 @@ SMED_GP <- function(f,p,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',cont
     cat(n0+i,xnew,ynew,opt.out$val,log(f_min(xnew,X[keep.Delta,],kk=k,mod=mod)),log(f_min(runif(2),X[keep.Delta,],kk=k,mod=mod)),'\n')
     X <- rbind(X,unname(xnew))
     Y <- c(Y,ynew)
-    text(x=xnew[1],y=xnew[2],labels=n0+i,col=1) # Plot it on contour
+    if (p==2) {
+      text(x=xnew[1],y=xnew[2],labels=n0+i,col=1) # Plot it on contour
+    }
     
     # Delta is used to 'hide' points from the potential function that are not useful
     # Without this the points selected were terrible
@@ -138,15 +150,17 @@ SMED_GP <- function(f,p,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',cont
     if(continue.option==T & i==n) {
       n.more <- as.integer(readline(prompt = 'How many more? '))
       if(n.more==-1) {browser();n.more <- as.integer(readline(prompt = 'How many more? '))}
-      if(n.more==-2) {browser();my.filled.contour.func(function(xx){log(f_min(xx,X[keep.Delta,],kk=k,mod=mod))},n=30);n.more <- as.integer(readline(prompt = 'How many more? '))}
+      if(n.more==-2) {browser();if (p==2) {my.filled.contour.func(function(xx){log(f_min(xx,X[keep.Delta,],kk=k,mod=mod))},n=30)};n.more <- as.integer(readline(prompt = 'How many more? '))}
       if(is.integer(n.more) & length(n.more)==1 & !is.na(n.more)) {n <- n + n.more}
     }
     i <- i + 1
   }
-  # Print final contour of estimated surface
-  #my.filled.contour.func(function(xx)predict.GP.SMED(mod,xx))
-  contourfilled.func(function(xx)predict.GP.SMED(mod,xx))
-  text(x=X[,1],y=X[,2],col='magenta')
+  if (p==2) {
+    # Print final contour of estimated surface
+    #my.filled.contour.func(function(xx)predict.GP.SMED(mod,xx))
+    contourfilled.func(function(xx)predict.GP.SMED(mod,xx))
+    text(x=X[,1],y=X[,2],col='magenta')
+  }
   # Delete model if needed (only laGP)
   delete.GP.SMED(mod)
   # Return design matrix and outputs
@@ -155,18 +169,19 @@ SMED_GP <- function(f,p,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',cont
 if (F) {
   #setwd("C:/Users/cbe117/School/DOE/SMED/SMED-Code")
   source('TestFunctions.R')
-  SMED_GP_2D(f=banana,n0=10,n=10,contour.fit=1,GP.package='mlegp',continue.option=T)
-  SMED_GP_2D(f=banana,n0=50,n=5,contour.fit=1,GP.package='laGP',continue.option=T)
-  SMED_GP_2D(f=function(x){exp(-(sum((x-.5)^2))/.01)},n0=10,n=5,contour.fit=1,GP.package='laGP',continue.option=T)
-  SMED_GP_2D(f=banana,n0=10,n=5,contour.fit=1,GP.package='exact',continue.option=T)
+  SMED_GP(f=banana,p=2,n0=10,n=10,contour.fit=1,GP.package='mlegp',continue.option=T)
+  SMED_GP(f=banana,p=2,n0=50,n=5,contour.fit=1,GP.package='laGP',continue.option=T)
+  SMED_GP(f=function(x){exp(-(sum((x-.5)^2))/.01)},p=2,n0=10,n=5,contour.fit=1,GP.package='laGP',continue.option=T)
+  SMED_GP(f=banana,p=2,n0=10,n=5,contour.fit=1,GP.package='exact',continue.option=T)
+  SMED_GP(f=function(x){x[1]^2+x[2]^4-x[3]},p=3,n0=10,n=10,contour.fit=1,GP.package='mlegp',continue.option=T)
   
   # Comparing with seed, pick one point
-  set.seed(0);SMED_GP_2D(f=banana,n0=30,n=1,contour.fit=1,GP.package='GPfit',continue.option=T,opt.method='LHS')
+  #set.seed(0);SMED_GP_2D(f=banana,n0=30,n=1,contour.fit=1,GP.package='GPfit',continue.option=T,opt.method='LHS')
   # 31 0.995832 0.9755436 9.061522e-41 18.48422 18.48422 22.16811 
-  set.seed(0);SMED_GP_2D(f=banana,n0=30,n=1,contour.fit=1,GP.package='mlegp',continue.option=T,opt.method='LHS')
+  #set.seed(0);SMED_GP_2D(f=banana,n0=30,n=1,contour.fit=1,GP.package='mlegp',continue.option=T,opt.method='LHS')
   # 31 0.9891865 0.986211 7.488378e-40 18.44477 18.44477 32.09332 
-  set.seed(0);SMED_GP_2D(f=banana,n0=30,n=1,contour.fit=1,GP.package='laGP',continue.option=T,opt.method='LHS')
+  #set.seed(0);SMED_GP_2D(f=banana,n0=30,n=1,contour.fit=1,GP.package='laGP',continue.option=T,opt.method='LHS')
   # 31 0.6320691 0.9985909 0.01649461 17.28631 17.28631 89.38975  Much worse fit though
-  set.seed(0);SMED_GP_2D(f=banana,n0=30,n=1,contour.fit=1,GP.package='exact',continue.option=T,opt.method='LHS')
+  #set.seed(0);SMED_GP_2D(f=banana,n0=30,n=1,contour.fit=1,GP.package='exact',continue.option=T,opt.method='LHS')
   # 31 0.5693355 0.913252 0.6247042 20.49745 20.49745 118.301 
 }
