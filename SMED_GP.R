@@ -109,8 +109,8 @@ SMED_GP <- function(f,p,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',cont
     # Different options for optimization, genoud is default
     if (opt.method=='genoud') { # First optimization option is genoud
       opt.out <- rgenoud::genoud(fn=function(xx){if (p==2) {points(xx[1],xx[2],pch=19,cex=.1,col=3)};log(f_min(xx,X[keep.Delta,],kk=k,mod=mod))}
-                                 ,nvars=2,max.generations=3,hard.generation.limit=T
-                                 ,Domains=matrix(c(0,0,1,1),2,2,byrow=F),boundary.enforcement=T,pop.size=50
+                                 ,nvars=3,max.generations=3,hard.generation.limit=T
+                                 ,Domains=matrix(c(rep(0,p),rep(1,p)),nrow=p,ncol=2,byrow=F),boundary.enforcement=T,pop.size=50
                                  ,print.level=0
       )
     } else if (opt.method == 'LHS') { # Optimization method: check a bunch of LHS points, NOT GOOD
@@ -160,6 +160,8 @@ SMED_GP <- function(f,p,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',cont
     #my.filled.contour.func(function(xx)predict.GP.SMED(mod,xx))
     contourfilled.func(function(xx)predict.GP.SMED(mod,xx))
     text(x=X[,1],y=X[,2],col='magenta')
+  } else if (p > 2) {
+    pairs(X)
   }
   # Delete model if needed (only laGP)
   delete.GP.SMED(mod)
@@ -173,7 +175,7 @@ if (F) {
   SMED_GP(f=banana,p=2,n0=50,n=5,contour.fit=1,GP.package='laGP',continue.option=T)
   SMED_GP(f=function(x){exp(-(sum((x-.5)^2))/.01)},p=2,n0=10,n=5,contour.fit=1,GP.package='laGP',continue.option=T)
   SMED_GP(f=banana,p=2,n0=10,n=5,contour.fit=1,GP.package='exact',continue.option=T)
-  SMED_GP(f=function(x){x[1]^2+x[2]^4-x[3]},p=3,n0=10,n=10,contour.fit=1,GP.package='mlegp',continue.option=T)
+  SMED_GP(f=function(x){(x[1]-.5)^2+(x[2]-.5)^2+(x[3]-.5)^2},p=3,n0=10,n=10,contour.fit=1,GP.package='mlegp',continue.option=T)
   
   # Comparing with seed, pick one point
   #set.seed(0);SMED_GP_2D(f=banana,n0=30,n=1,contour.fit=1,GP.package='GPfit',continue.option=T,opt.method='LHS')
