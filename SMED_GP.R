@@ -109,7 +109,7 @@ SMED_GP <- function(f,p,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',cont
     # Different options for optimization, genoud is default
     if (opt.method=='genoud') { # First optimization option is genoud
       opt.out <- rgenoud::genoud(fn=function(xx){if (p==2) {points(xx[1],xx[2],pch=19,cex=.1,col=3)};log(f_min(xx,X[keep.Delta,],kk=k,mod=mod))}
-                                 ,nvars=3,max.generations=3,hard.generation.limit=T
+                                 ,nvars=p,max.generations=3,hard.generation.limit=T
                                  ,Domains=matrix(c(rep(0,p),rep(1,p)),nrow=p,ncol=2,byrow=F),boundary.enforcement=T,pop.size=50
                                  ,print.level=0
       )
