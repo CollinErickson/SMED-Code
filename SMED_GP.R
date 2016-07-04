@@ -96,6 +96,7 @@ SMED_GP <- function(f,p,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',cont
   
   # Get rest of points, while loop lets you add points in when prompted
   i <- 1
+  cat('i',paste0('x',1:p),'y','opt','log','log','\n',sep='\t')
   while(i <= n) {
     # Plot contour of fit if iteration is multiple of contour.fit
     if(contour.fit>0 & i%%contour.fit==0) {
@@ -131,7 +132,7 @@ SMED_GP <- function(f,p,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',cont
     # Add new point
     xnew <- opt.out$par
     ynew <- f(xnew)
-    cat(n0+i,xnew,ynew,opt.out$val,log(f_min(xnew,X[keep.Delta,],kk=k,mod=mod)),log(f_min(runif(2),X[keep.Delta,],kk=k,mod=mod)),'\n')
+    cat(n0+i,round(xnew,3),round(ynew,3),round(opt.out$val,3),round(log(f_min(xnew,X[keep.Delta,],kk=k,mod=mod)),3),round(log(f_min(runif(2),X[keep.Delta,],kk=k,mod=mod)),3),'\n',sep = '\t')
     X <- rbind(X,unname(xnew))
     Y <- c(Y,ynew)
     if (p==2) {
@@ -176,6 +177,7 @@ if (F) {
   SMED_GP(f=function(x){exp(-(sum((x-.5)^2))/.01)},p=2,n0=10,n=5,contour.fit=1,GP.package='laGP',continue.option=T)
   SMED_GP(f=banana,p=2,n0=10,n=5,contour.fit=1,GP.package='exact',continue.option=T)
   SMED_GP(f=function(x){(x[1]-.5)^2+(x[2]-.5)^2+(x[3]-.5)^2},p=3,n0=10,n=10,contour.fit=1,GP.package='mlegp',continue.option=T)
+  SMED_GP(f=function(x){(x[1]-.5)^2+(x[2]-.5)^2+(x[3]-.5)^2},p=3,n0=10,n=10,contour.fit=1,GP.package='laGP',continue.option=T,opt.method = 'LHS')
   
   # Comparing with seed, pick one point
   #set.seed(0);SMED_GP_2D(f=banana,n0=30,n=1,contour.fit=1,GP.package='GPfit',continue.option=T,opt.method='LHS')
