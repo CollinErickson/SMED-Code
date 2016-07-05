@@ -17,7 +17,7 @@ SMED_GP <- function(f,p,n0=10,n=10,nc=100,GP.package='',opt.method='genoud',cont
   #  X: design matrix
   #  Y: function values at design points
   
-  #p <- 2 # dimension
+  #p <- 2 # dimension, p is now input
   k <- 4 * p # MED distance power, k=4p is recommended by Roshan
   
   # source('TestFunctions.R') # Not sure if I should source test functions here or outside
@@ -178,6 +178,7 @@ if (F) {
   SMED_GP(f=banana,p=2,n0=10,n=5,contour.fit=1,GP.package='exact',continue.option=T)
   SMED_GP(f=function(x){(x[1]-.5)^2+(x[2]-.5)^2+(x[3]-.5)^2},p=3,n0=10,n=10,contour.fit=1,GP.package='mlegp',continue.option=T)
   SMED_GP(f=function(x){(x[1]-.5)^2+(x[2]-.5)^2+(x[3]-.5)^2},p=3,n0=10,n=10,contour.fit=1,GP.package='laGP',continue.option=T,opt.method = 'LHS')
+  SMED_GP(f=function(x){(x[1]-.5)^2+(x[2]-.5)^2+(x[3]-.5)^2+sin(2*pi*x[4])},p=4,n0=10,n=10,contour.fit=1,GP.package='laGP',continue.option=T,opt.method = 'LHS')
   
   # Comparing with seed, pick one point
   #set.seed(0);SMED_GP_2D(f=banana,n0=30,n=1,contour.fit=1,GP.package='GPfit',continue.option=T,opt.method='LHS')
