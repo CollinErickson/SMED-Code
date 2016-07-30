@@ -1,4 +1,4 @@
-SMED <- function(f,p,n=10,nc=100,max.time=NULL, X0=NULL, Xopt=NULL) {
+SMED_select <- function(f,p,n=10,nc=100,max.time=NULL, X0=NULL, Xopt=NULL) {
   # Function for SMED in 2D
   # Input:
   #  f: function
@@ -31,43 +31,31 @@ SMED <- function(f,p,n=10,nc=100,max.time=NULL, X0=NULL, Xopt=NULL) {
   if (p==2) {
     # Get contour plot
     #my.filled.contour.func(f,nlevels=5)
-    contourfilled.func(f,nlevels=5)
+    #contourfilled.func(f,nlevels=5)
   }
-  
-  already_got_one <- is.null(X)
-  if (is.null(X)) {
-    # Initialize with mode
-    gsa.out <- GenSA::GenSA(par=NULL,fn=function(xx)-f(xx),lower=rep(0,p),upper=rep(1,p),control = list(trace.mat=F))
-    X <- matrix(gsa.out$par,1,p)
-    if (p==2) {
-      text(X[1],X[2],labels=1,col=1,pch=1)
-    }
-  } else {
-    points(X, pch=19)
-  }
-  
+
+  #points(X, pch=19)
+
   Y <- apply(X,1,f)
   qqX <- apply(X,1,qq)
   Delta <- .01 * max(Y)
   keep.Delta <- (Y > Delta)
+  #browser()
+  Xopt.inds <- 1:nrow(Xopt)
+  Xopt.selected <- c()
   
   # Get rest of points
-  for(i in (1 + already_got_one):n) {#print(keep.Delta)
+  for(i in 1:n) {#print(keep.Delta)
     # Use log scale for optimization, had trouble before when numbers were 1e88
     opt.func <- function(xx)log(f_min(xx,X[keep.Delta, , drop=F],qqX[keep.Delta],kk=k))
-    if (is.null(Xopt)) {
-      gsa.out <- GenSA::GenSA(par=NULL,
-                              fn=opt.func,
-                              lower=rep(0,p),upper=rep(1,p),
-                              control = GenSA.controls)
-      # Add new point
-      xnew <- gsa.out$par
-    } else {
-      func.vals <- apply(Xopt, 1, opt.func)
-      best <- which.min(func.vals)
-      xnew <- Xopt[best,]
-      Xopt <- Xopt[-best, , drop=F]
-    }
+  
+    func.vals <- apply(Xopt, 1, opt.func)
+    best <- which.min(func.vals)
+    xnew <- Xopt[best,]
+    Xopt <- Xopt[-best, , drop=F]
+    Xopt.selected <- c(Xopt.selected, Xopt.inds[best])
+    Xopt.inds <- Xopt.inds[-best]
+
     X <- rbind(X,unname(xnew))
     Y <- apply(X,1,f) # could just append
     qqX <- apply(X,1,qq)
@@ -79,14 +67,15 @@ SMED <- function(f,p,n=10,nc=100,max.time=NULL, X0=NULL, Xopt=NULL) {
     keep.Delta <- ifelse(1:nrow(X) <= n0, Y > Delta, T)
     
     if (p==2) {
-      text(x=xnew[1],y=xnew[2],labels=i,col=1)
+      #text(x=xnew[1],y=xnew[2],labels=i,col=1)
     }
   }
   if (p>2) {
-    pairs(X)
+    #pairs(X)
   }
   # Return design matrix
-  return(X)
+  #return(X)
+  return(Xopt.selected)
 }
 if (F) {
   #setwd("C:/Users/cbe117/School/DOE/SMED/SMED-Code")
