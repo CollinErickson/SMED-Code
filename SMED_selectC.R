@@ -16,27 +16,128 @@ double log_f_minC(NumericVector xnew, double qqxnew, NumericMatrix xall, Numeric
   total = log(total);
   return total;
 }')
+
+
+Rcpp::cppFunction('
+                  IntegerVector SMED_selectC(Function f, int n, NumericMatrix X0, NumericMatrix Xopt) {  
+                  int p = X0.ncol();
+                  int k = 4 * p;
+                  
+                  // initiate values for X0
+                  NumericVector Y(X0.nrow());
+                  for (int i=0; i < Y.size(); ++i) {
+                  Y[i] = as<double>(f(X0(i, _)));
+                  }
+                  NumericVector qqX(X0.nrow());
+                  for (int i=0; i < qqX.size(); ++i) {
+                  qqX[i] = pow(Y[i], -1.0 / (2 * p));
+                  }
+                  
+                  // initiate values for Xopt
+                  NumericVector Yopt(Xopt.nrow());
+                  for (int i=0; i < Yopt.size(); ++i) {
+                  Yopt[i] = as<double>(f(Xopt(i, _)));
+                  }
+                  NumericVector qqXopt(Xopt.nrow());
+                  for (int i=0; i < qqXopt.size(); ++i) {
+                  qqXopt[i] = pow(Yopt[i], -1.0 / (2 * p));
+                  }
+                  double Delta = .01 * max(Y);
+                  LogicalVector keepDelta = (Y > Delta);
+                  IntegerVector XoptSelectedIndsOrder(n);
+                  LogicalVector XoptSelected(Xopt.nrow(), false);
+                  
+                  
+                  //double total = 0;
+                  double dist = 0;
+                  double funcValMin;
+                  double funcValMinInd = -1;
+                  double funcVal;
+                  NumericVector funcVals(Xopt.nrow());
+                  
+                  // Pick n next with SMED
+                  for(int i = 0; i < n; ++i) {
+                  //NumericVector funcVals(Xopt.nrow());
+                  for(int ii=0; ii < funcVals.size(); ++ii){
+                  funcVals(ii) = 0;
+                  }
+                  // Loop over points
+                  for(int j = 0; j < Xopt.nrow(); ++j) {
+                  if (!XoptSelected[j]) {
+                  funcVals[j] = 0;
+                  funcVal = 0;
+                  // Loop over X0 (keptDelta) and selected Xopt to get funcVal
+                  for(int l = 0; l < X0.nrow(); ++l) {
+                  dist = sum(pow(Xopt(j, _) - X0(l, _), 2.0));
+                  funcVals[j] += pow(qqX[l] / sqrt(dist), k);
+                  funcVal += pow(qqX[l] / sqrt(dist), k);
+                  }
+                  // Loop over points already selected
+                  for(int l = 0; l < Xopt.nrow(); ++l) {
+                  if (XoptSelected[l]) {
+                  dist = sum(pow(Xopt(j, _) - Xopt(l, _), 2.0));
+                  funcVals[j] += pow(qqXopt[l] / sqrt(dist), k);
+                  funcVal += pow(qqXopt[l] / sqrt(dist), k);
+                  }
+                  }
+                  
+                  funcVal *= pow(qqXopt[j], k);
+                  funcVals[j] *= pow(qqXopt[j], k);
+                  
+                  // Check if it is the best
+                  if ((funcValMinInd < 0) | (funcVal < funcValMin)) {
+                  funcValMin = funcVal;
+                  funcValMinInd = j;
+                  } 
+                  }
+                  
+                  } // end loop over Xopt points
+                  XoptSelectedIndsOrder[i] = funcValMinInd;
+                  XoptSelected[funcValMinInd] = true;
+                  funcValMinInd = -1;
+                  } // end loop to select n
+                  
+                  /*# Get rest of points
+                  
+                  Delta <- .01 * max(Y) #.01 * (n0 / (n + i)) ^ (1 / p) * max(Y)
+                  #keep.Delta <- (Y > Delta)
+                  keep.Delta <- ifelse(1:nrow(X) <= n0, Y > Delta, T)
+                  
+                  }
+                  */
+                  
+                  //return funcVals;
+                  //return funcValMin;
+                  //return qqXopt;//as<double>(f(X0(0,_)));
+                  return XoptSelectedIndsOrder + 1;
+                  }')
+print(
+  #SMEDC(function(x)sum(abs(sin(x))), 2, matrix(runif(16),8,2), matrix(runif(8),4,2))
+  #SMEDC(function(x)(sin(x*2*pi)^2), 3, matrix(c(.2,.3,.4,.25,.14,.8,.75,.93),8,1), matrix(c(.91,.21,.9,.77,.85),ncol=1))
+  SMEDC(function(x)(sin(x*2*pi)^2), 1, matrix(c(.2,.3,.7),ncol=1), matrix(c(.301,.91,.21,.9,.77,.85,.8,.99),ncol=1))
+  )
+SMED_select(function(x)(sin(x*2*pi)^2), 7, matrix(c(.2,.3,.7),ncol=1), matrix(c(.301,.91,.21,.9,.77,.85,.8,.99),ncol=1))
+
+#SMEDC(function(x)sum(abs(sin(x))), 2, matrix(runif(16),8,2), matrix(runif(8),4,2))
+
+
 #f_min <- function(xnew,xall, qqall,kk) {
 #  qq(xnew)^kk*sum(sapply(1:nrow(xall),function(ii){(qqall[ii]/(sqrt(sum((xall[ii,]-xnew)^2))))^kk}))
 #}
 #qq <- function(xx){f(xx)^-(1/(2*p))}
 
-SMED_select <- function(f,p,n=10,nc=100,max.time=NULL, X0=NULL, Xopt=NULL) {#browser()
+SMED_selectSLOW <- function(f, n, X0=NULL, Xopt=NULL) {#browser()
   # Function for SMED in 2D
   # Input:
   #  f: function
   #  p: # of dimensions
   #  n: # of pts to select
-  #  nc: # of pts in contour plot
-  #  max.time: max.time for GenSA optimization for each point
-  
-  # source('TestFunctions.R')
-  # source('myfilledcontour.R')
+  #  X0: current design points
+  #  Xopt: points to consider
   
   #p <- d # dimension
+  p <- ncol(X0)
   k <- 4*p # MED distance thing
-  GenSA.controls <- list(trace.mat=F) # Optimization parameters
-  if(!is.null(max.time)) GenSA.controls[['max.time']] <- max.time
   X <- X0
   n0 <- if(is.null(X0)) 0 else nrow(X0)
   
@@ -51,13 +152,6 @@ SMED_select <- function(f,p,n=10,nc=100,max.time=NULL, X0=NULL, Xopt=NULL) {#bro
     #qq(xnew)^kk*sum(sapply(1:nrow(xall),function(ii){(qqall[ii]/(sqrt(sum((xall[ii,]-xnew)^2))))^kk}))
   }
   
-  if (p==2) {
-    # Get contour plot
-    #my.filled.contour.func(f,nlevels=5)
-    #contourfilled.func(f,nlevels=5)
-  }
-
-  #points(X, pch=19)
 
   Y <- apply(X,1,f)
   qqX <- apply(X,1,qq)
@@ -92,15 +186,8 @@ SMED_select <- function(f,p,n=10,nc=100,max.time=NULL, X0=NULL, Xopt=NULL) {#bro
     #browser()
     keep.Delta <- ifelse(1:nrow(X) <= n0, Y > Delta, T)
     
-    if (p==2) {
-      #text(x=xnew[1],y=xnew[2],labels=i,col=1)
-    }
   }
-  if (p>2) {
-    #pairs(X)
-  }
-  # Return design matrix
-  #return(X)
+  # Return indices of selected points
   return(Xopt.selected)
 }
 if (F) {

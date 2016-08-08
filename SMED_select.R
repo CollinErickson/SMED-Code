@@ -1,8 +1,8 @@
-SMED_select <- function(f,p,n=10,nc=100,max.time=NULL, X0=NULL, Xopt=NULL) {
+SMED_select <- function(f,n=1, X0=NULL, Xopt=NULL) {
   # Function for SMED in 2D
   # Input:
   #  f: function
-  #  p: # of dimensions
+  #  p: # of dimensions inferred from X0
   #  n: # of pts to select
   #  nc: # of pts in contour plot
   #  max.time: max.time for GenSA optimization for each point
@@ -11,9 +11,8 @@ SMED_select <- function(f,p,n=10,nc=100,max.time=NULL, X0=NULL, Xopt=NULL) {
   # source('myfilledcontour.R')
   
   #p <- d # dimension
+  p <- ncol(X0)
   k <- 4*p # MED distance thing
-  GenSA.controls <- list(trace.mat=F) # Optimization parameters
-  if(!is.null(max.time)) GenSA.controls[['max.time']] <- max.time
   X <- X0
   n0 <- if(is.null(X0)) 0 else nrow(X0)
   
@@ -43,11 +42,13 @@ SMED_select <- function(f,p,n=10,nc=100,max.time=NULL, X0=NULL, Xopt=NULL) {
   #browser()
   Xopt.inds <- 1:nrow(Xopt)
   Xopt.selected <- c()
+  #Xopt.consider <- rep(T, nrow(X.opt)) # to only check good points when taking more than 1
   
   # Get rest of points
   for(i in 1:n) {#print(keep.Delta)
     # Use log scale for optimization, had trouble before when numbers were 1e88
-    opt.func <- function(xx)log(f_min(xx,X[keep.Delta, , drop=F],qqX[keep.Delta],kk=k))
+    opt.func <- function(xx)log(f_min(xx,X[keep.Delta, , drop=F],
+                                      qqX[keep.Delta],kk=k))
   
     func.vals <- apply(Xopt, 1, opt.func)
     best <- which.min(func.vals)
@@ -55,10 +56,13 @@ SMED_select <- function(f,p,n=10,nc=100,max.time=NULL, X0=NULL, Xopt=NULL) {
     Xopt <- Xopt[-best, , drop=F]
     Xopt.selected <- c(Xopt.selected, Xopt.inds[best])
     Xopt.inds <- Xopt.inds[-best]
+    #Xopt.consider <- Xopt.consider[-best]
 
     X <- rbind(X,unname(xnew))
-    Y <- apply(X,1,f) # could just append
-    qqX <- apply(X,1,qq)
+    #Y <- apply(X,1,f) # could just append
+    Y <- c(Y, f(xnew))
+    #qqX <- apply(X,1,qq)
+    qqX <- c(qqX, qq(xnew))
     # Delta is used to 'hide' points from the potential function that are not useful
     # Without this the points selected were terrible
     Delta <- .01 * max(Y) #.01 * (n0 / (n + i)) ^ (1 / p) * max(Y)
