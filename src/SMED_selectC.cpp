@@ -1,8 +1,23 @@
-Rcpp::cppFunction('
-IntegerVector SMED_selectC(Function f, int n, NumericMatrix X0, NumericMatrix Xopt) {  
+#include <Rcpp.h>
+using namespace Rcpp;
+
+// This is a simple example of exporting a C++ function to R. You can
+// source this function into an R session using the Rcpp::sourceCpp
+// function (or via the Source button on the editor toolbar). Learn
+// more about Rcpp at:
+//
+//   http://www.rcpp.org/
+//   http://adv-r.had.co.nz/Rcpp.html
+//   http://gallery.rcpp.org/
+//
+
+//' Select points using SMED
+//' @export
+// [[Rcpp::export]]
+IntegerVector SMED_selectC(Function f, int n, NumericMatrix X0, NumericMatrix Xopt) {
   int p = X0.ncol();
   int k = 4 * p;
-  
+
   // initiate values for X0
   NumericVector Y(X0.nrow());
   for (int i=0; i < Y.size(); ++i) {
@@ -12,7 +27,7 @@ IntegerVector SMED_selectC(Function f, int n, NumericMatrix X0, NumericMatrix Xo
   for (int i=0; i < qqX.size(); ++i) {
     qqX[i] = pow(Y[i], -1.0 / (2 * p));
   }
-    
+
   // initiate values for Xopt
   NumericVector Yopt(Xopt.nrow());
   for (int i=0; i < Yopt.size(); ++i) {
@@ -26,15 +41,15 @@ IntegerVector SMED_selectC(Function f, int n, NumericMatrix X0, NumericMatrix Xo
   //LogicalVector keepDelta = (Y > Delta);
   IntegerVector XoptSelectedIndsOrder(n);
   LogicalVector XoptSelected(Xopt.nrow(), false);
-  
-  
+
+
   //double total = 0;
   double dist = 0;
-  double funcValMin;
+  double funcValMin = 0; // Shouldnt need to be initialized
   double funcValMinInd = -1;
   double funcVal;
   //NumericVector funcVals(Xopt.nrow());
-  
+
   // Pick n next with SMED
   for(int i = 0; i < n; ++i) {
     //NumericVector funcVals(Xopt.nrow());
@@ -62,17 +77,17 @@ IntegerVector SMED_selectC(Function f, int n, NumericMatrix X0, NumericMatrix Xo
             funcVal += pow(qqXopt[l] / sqrt(dist), k);
           }
         }
-      
+
         funcVal *= pow(qqXopt[j], k);
         //funcVals[j] *= pow(qqXopt[j], k);
-      
+
         // Check if it is the best
         if ((funcValMinInd < 0) | (funcVal < funcValMin)) {
           funcValMin = funcVal;
           funcValMinInd = j;
-        } 
+        }
       }
-    
+
     } // end loop over Xopt points
     XoptSelectedIndsOrder[i] = funcValMinInd;
     XoptSelected[funcValMinInd] = true;
@@ -80,12 +95,14 @@ IntegerVector SMED_selectC(Function f, int n, NumericMatrix X0, NumericMatrix Xo
   } // end loop to select n
 
   return XoptSelectedIndsOrder + 1;
-}')
-if (F) {
-  #SMEDC(function(x)sum(abs(sin(x))), 2, matrix(runif(16),8,2), matrix(runif(8),4,2))
-  #SMEDC(function(x)(sin(x*2*pi)^2), 3, matrix(c(.2,.3,.4,.25,.14,.8,.75,.93),8,1), matrix(c(.91,.21,.9,.77,.85),ncol=1))
-  SMEDC(function(x)(sin(x*2*pi)^2), 1, matrix(c(.2,.3,.7),ncol=1), matrix(c(.301,.91,.21,.9,.77,.85,.8,.99),ncol=1))
-  
-  SMED_select(function(x)(sin(x*2*pi)^2), 7, matrix(c(.2,.3,.7),ncol=1), matrix(c(.301,.91,.21,.9,.77,.85,.8,.99),ncol=1))
-
 }
+
+
+// You can include R code blocks in C++ files processed with sourceCpp
+// (useful for testing and development). The R code will be automatically
+// run after the compilation.
+//
+
+/*** R
+#timesTwo(42)
+*/

@@ -1,3 +1,17 @@
+#' SMED_select
+#'
+#' @useDynLib SMED
+#' @importFrom Rcpp evalCpp
+#' @param f Function
+#' @param n Number of points to select
+#' @param X0 Design matrix of already selected points (points in rows)
+#' @param Xopt Matrix where each row is a candidate point
+#'
+#' @return Vector with indices of selected points
+#' @export
+#'
+#' @examples
+#'
 SMED_select <- function(f,n=1, X0=NULL, Xopt=NULL) {
   # Function for SMED in 2D
   # Input:
@@ -6,16 +20,16 @@ SMED_select <- function(f,n=1, X0=NULL, Xopt=NULL) {
   #  n: # of pts to select
   #  nc: # of pts in contour plot
   #  max.time: max.time for GenSA optimization for each point
-  
+
   # source('TestFunctions.R')
   # source('myfilledcontour.R')
-  
+
   #p <- d # dimension
   p <- ncol(X0)
   k <- 4*p # MED distance thing
   X <- X0
   n0 <- if(is.null(X0)) 0 else nrow(X0)
-  
+
   # Charge function qq
   qq <- function(xx){f(xx)^-(1/(2*p))}
   # Function we will optimize
@@ -26,7 +40,7 @@ SMED_select <- function(f,n=1, X0=NULL, Xopt=NULL) {
     #qq(xnew)^kk*sum(apply(xall,1,function(xx){(qq(xx)/(sqrt(sum((xx-xnew)^2))))^kk}))
     qq(xnew)^kk*sum(sapply(1:nrow(xall),function(ii){(qqall[ii]/(sqrt(sum((xall[ii,]-xnew)^2))))^kk}))
   }
-  
+
   if (p==2) {
     # Get contour plot
     #my.filled.contour.func(f,nlevels=5)
@@ -43,13 +57,13 @@ SMED_select <- function(f,n=1, X0=NULL, Xopt=NULL) {
   Xopt.inds <- 1:nrow(Xopt)
   Xopt.selected <- c()
   #Xopt.consider <- rep(T, nrow(X.opt)) # to only check good points when taking more than 1
-  
+
   # Get rest of points
   for(i in 1:n) {#print(keep.Delta)
     # Use log scale for optimization, had trouble before when numbers were 1e88
     opt.func <- function(xx)log(f_min(xx,X[keep.Delta, , drop=F],
                                       qqX[keep.Delta],kk=k))
-  
+
     func.vals <- apply(Xopt, 1, opt.func)
     best <- which.min(func.vals)
     xnew <- Xopt[best,]
@@ -69,7 +83,7 @@ SMED_select <- function(f,n=1, X0=NULL, Xopt=NULL) {
     #keep.Delta <- (Y > Delta)
     #browser()
     keep.Delta <- ifelse(1:nrow(X) <= n0, Y > Delta, T)
-    
+
     if (p==2) {
       #text(x=xnew[1],y=xnew[2],labels=i,col=1)
     }
