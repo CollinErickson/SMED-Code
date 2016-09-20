@@ -46,3 +46,13 @@ Network Trash Folder
 Temporary Items
 .apdisk
 .Rproj.user
+
+
+# I dont know where the above came from, Im adding here at the bottom  - CBE 9/20/16
+#.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+src/*.o
+src/*.so
+src/*.dll
