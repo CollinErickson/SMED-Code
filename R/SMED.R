@@ -1,3 +1,19 @@
+#' SMED
+#'
+#' @param f Function
+#' @param p Number of dimensions
+#' @param n Number of points
+#' @param nc Number of points for contour plot
+#' @param max.time max.time for GenSA optimization for each point
+#' @param X0 Matrix of initial points
+#' @param Xopt Matrix of candidate points
+#' @importFrom graphics curve hist pairs par plot points text
+#'
+#' @return Points selected
+#' @export
+#'
+#' @examples
+#' SMED(function(xx){xx[1]+xx[2]^2-sin(2*pi*xx[3])},p=3,n=10,max.time=.2)
 SMED <- function(f,p,n=10,nc=100,max.time=NULL, X0=NULL, Xopt=NULL) {
   # Function for SMED in 2D
   # Input:
@@ -6,17 +22,17 @@ SMED <- function(f,p,n=10,nc=100,max.time=NULL, X0=NULL, Xopt=NULL) {
   #  n: # of pts to select
   #  nc: # of pts in contour plot
   #  max.time: max.time for GenSA optimization for each point
-  
+
   # source('TestFunctions.R')
   # source('myfilledcontour.R')
-  
+
   #p <- d # dimension
   k <- 4*p # MED distance thing
   GenSA.controls <- list(trace.mat=F) # Optimization parameters
   if(!is.null(max.time)) GenSA.controls[['max.time']] <- max.time
   X <- X0
   n0 <- if(is.null(X0)) 0 else nrow(X0)
-  
+
   # Charge function qq
   qq <- function(xx){f(xx)^-(1/(2*p))}
   # Function we will optimize
@@ -27,13 +43,14 @@ SMED <- function(f,p,n=10,nc=100,max.time=NULL, X0=NULL, Xopt=NULL) {
     #qq(xnew)^kk*sum(apply(xall,1,function(xx){(qq(xx)/(sqrt(sum((xx-xnew)^2))))^kk}))
     qq(xnew)^kk*sum(sapply(1:nrow(xall),function(ii){(qqall[ii]/(sqrt(sum((xall[ii,]-xnew)^2))))^kk}))
   }
-  
+
   if (p==2) {
     # Get contour plot
     #my.filled.contour.func(f,nlevels=5)
-    contourfilled.func(f,nlevels=5)
+    # contourfilled.func(f,nlevels=5)
+    ContourFunctions::cf_func(f)
   }
-  
+
   already_got_one <- is.null(X)
   if (is.null(X)) {
     # Initialize with mode
@@ -45,12 +62,12 @@ SMED <- function(f,p,n=10,nc=100,max.time=NULL, X0=NULL, Xopt=NULL) {
   } else {
     points(X, pch=19)
   }
-  
+
   Y <- apply(X,1,f)
   qqX <- apply(X,1,qq)
   Delta <- .01 * max(Y)
   keep.Delta <- (Y > Delta)
-  
+
   # Get rest of points
   for(i in (1 + already_got_one):n) {#print(keep.Delta)
     # Use log scale for optimization, had trouble before when numbers were 1e88
@@ -77,7 +94,7 @@ SMED <- function(f,p,n=10,nc=100,max.time=NULL, X0=NULL, Xopt=NULL) {
     #keep.Delta <- (Y > Delta)
     #browser()
     keep.Delta <- ifelse(1:nrow(X) <= n0, Y > Delta, T)
-    
+
     if (p==2) {
       text(x=xnew[1],y=xnew[2],labels=i,col=1)
     }
@@ -90,8 +107,8 @@ SMED <- function(f,p,n=10,nc=100,max.time=NULL, X0=NULL, Xopt=NULL) {
 }
 if (F) {
   #setwd("C:/Users/cbe117/School/DOE/SMED/SMED-Code")
-  source('TestFunctions.R')
-  source('C:/Users/cbe117/School/DOE/Codes/contour/contourfilled/R/contourfilled.R')
-  SMED(banana,p=2,n=10,max.time=.2)
+  # source('TestFunctions.R')
+  # source('C:/Users/cbe117/School/DOE/Codes/contour/contourfilled/R/contourfilled.R')
+  SMED(TestFunctions::banana,p=2,n=10,max.time=.2)
   SMED(function(xx){xx[1]+xx[2]^2-sin(2*pi*xx[3])},p=3,n=10,max.time=.2)
 }

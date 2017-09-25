@@ -113,8 +113,8 @@ SMED_select <- function(f,n=1, X0=NULL, Xopt=NULL, theta=rep(1,ncol(X0)), useC=F
 }
 if (F) {
   #setwd("C:/Users/cbe117/School/DOE/SMED/SMED-Code")
-  source('TestFunctions.R')
-  source('C:/Users/cbe117/School/DOE/Codes/contour/contourfilled/R/contourfilled.R')
-  SMED(banana,p=2,n=10,max.time=.2)
+  # source('TestFunctions.R')
+  # source('C:/Users/cbe117/School/DOE/Codes/contour/contourfilled/R/contourfilled.R')
+  SMED(TestFunctions::banana,p=2,n=10,max.time=.2)
   SMED(function(xx){xx[1]+xx[2]^2-sin(2*pi*xx[3])},p=3,n=10,max.time=.2)
 }

@@ -1,3 +1,19 @@
+#' SMED in 1 dimension
+#'
+#' @param f Function
+#' @param n Number of points
+#' @param navail Number of candidate points
+#' @param kk Power to use for MED
+#' @param xmin Min x value
+#' @param xmax Max x value
+#' @param include.histogram Should histogram be plotted at end
+#' @importFrom stats runif
+#'
+#' @return Nothing, plots points
+#' @export
+#'
+#' @examples
+#' SMED_1D(function(xx)dbeta(xx,4,2),n=30)
 SMED_1D <- function(f,n=10,navail=1000,kk=4,xmin=0,xmax=1,include.histogram=F) {
   # Function that implements SMED in 1D. Estimates probability distribution
   #  f: density function
@@ -6,26 +22,26 @@ SMED_1D <- function(f,n=10,navail=1000,kk=4,xmin=0,xmax=1,include.histogram=F) {
   #  kk: power to use for MED. k=4p is default
   #  xmin, xmax: limits on inputs
   #  include.histogram - whether to plot histogram at end
-  
+
   # Charge function
-  qq <- function(xx){f(xx)^-.5} 
-  
+  qq <- function(xx){f(xx)^-.5}
+
   # Function we minimize to select next point
   f_min <- Vectorize(function(xnew,xall,k=kk) {
     qq(xnew)^k*sum(sapply(xall,function(xx){(qq(xx)/abs(xx-xnew))^k}))
   }, vectorize.args='xnew')
-  
+
   # Initialize with mode
   xavail <- runif(navail,xmin,xmax)
   xmodeind <- which.max(f(xavail))
   X <- xavail[xmodeind]
-  xavail <- xavail[-xmodeind] # Removes selected pts from available pts  
-  
+  xavail <- xavail[-xmodeind] # Removes selected pts from available pts
+
   # Plot density and points
   curve(f,from=xmin,to=xmax)
   text(X,f(X),1,col=4)
   points(X,0,col=2)
-  
+
   # Sequentially pick rest
   for(i in 2:n) {
     # Find f_opt minimum

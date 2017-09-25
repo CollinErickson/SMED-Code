@@ -2,12 +2,15 @@ Package: SMED
 Type: Package
 Title: Sequential Minimum Energy Designs
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Author: Collin Erickson
+Maintainer: Collin Erickson <collinberickson@gmail.com>
+Description: Selects points sequentially that are spaced out according to
+    an energy function. It is good for picking points that balance 
+    space-filling and focuses in on an objective.
+License: GPL-3
 LazyData: TRUE
 Imports:
     Rcpp (>= 0.11.0)
+Suggests: laGP, ContourFunctions, GPfit, GenSA, lhs, mlegp, rgenoud
 LinkingTo: Rcpp
 RoxygenNote: 6.0.1
