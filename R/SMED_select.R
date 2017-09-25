@@ -1,4 +1,6 @@
-#' SMED_select
+#' Select SMED points from a set of options
+#'
+#' SMED_select: R implementation
 #'
 #' @useDynLib SMED
 #' @importFrom Rcpp evalCpp
@@ -6,23 +8,36 @@
 #' @param n Number of points to select
 #' @param X0 Design matrix of already selected points (points in rows)
 #' @param Xopt Matrix where each row is a candidate point
+#' @param theta Correlation parameters in each dimension for distance scaling
+#' @param useC Should SMED_select call SMED_selectC?
 #'
 #' @return Vector with indices of selected points
 #' @export
 #'
 #' @examples
+#' X0 <- matrix(c(.45,.1,.55,.9),ncol=2,byrow=TRUE)
+#' Xopt <- matrix(c(.45,.5,.5,.2),ncol=2,byrow=TRUE)
+#' plot(NULL, xlim=c(0,1), ylim=c(0,1))
+#' points(X0)
+#' text(Xopt, col=2)
+#' SMED_select(function(a) {1}, 1, X0, Xopt)
 #'
-SMED_select <- function(f,n=1, X0=NULL, Xopt=NULL) {
-  # Function for SMED in 2D
-  # Input:
-  #  f: function
-  #  p: # of dimensions inferred from X0
-  #  n: # of pts to select
-  #  nc: # of pts in contour plot
-  #  max.time: max.time for GenSA optimization for each point
-
-  # source('TestFunctions.R')
-  # source('myfilledcontour.R')
+#' # Checking if using theta works
+#' X0 <- matrix(c(.1,.1,.5,.5,.9,.9), ncol=2, byrow=TRUE)
+#' Xopt <- matrix(c(.1,.9,.3,.5,.5,.3), ncol=2, byrow=TRUE)
+#' plot(X0,xlim=0:1,ylim=0:1, pch=19)
+#' text(Xopt, col=2, pch=19)
+#' f <- function(x){1} # all have same charge, so only theta matters
+#' # Each dimension equal, pick 1 since it is most spread out
+#' SMED_select(f=f, n=3, X0=X0, Xopt=Xopt)
+#' # y dimension has more variability, pick 3 since it is furthest from X0 in y direction
+#' SMED_select(f=f, n=3, X0=X0, Xopt=Xopt, theta=c(1,1e3))
+#' # x dimension has more variability, pick 2 since it is furthest from X0 in x direction
+#' SMED_select(f=f, n=3, X0=X0, Xopt=Xopt, theta=c(1,1e-3))
+SMED_select <- function(f,n=1, X0=NULL, Xopt=NULL, theta=rep(1,ncol(X0)), useC=F) {
+  if (useC) {
+    return(SMED_selectC(f=f, n=n, X0=X0, Xopt=Xopt, theta=theta))
+  }
 
   #p <- d # dimension
   p <- ncol(X0)
@@ -38,7 +53,8 @@ SMED_select <- function(f,n=1, X0=NULL, Xopt=NULL) {
   #}
   f_min <- function(xnew,xall, qqall,kk) {
     #qq(xnew)^kk*sum(apply(xall,1,function(xx){(qq(xx)/(sqrt(sum((xx-xnew)^2))))^kk}))
-    qq(xnew)^kk*sum(sapply(1:nrow(xall),function(ii){(qqall[ii]/(sqrt(sum((xall[ii,]-xnew)^2))))^kk}))
+    #qq(xnew)^kk*sum(sapply(1:nrow(xall),function(ii){(qqall[ii]/(sqrt(sum((xall[ii,]-xnew)^2))))^kk}))
+    qq(xnew)^kk*sum(sapply(1:nrow(xall),function(ii){(qqall[ii]/(sqrt(sum((xall[ii,]-xnew)^2 * theta))))^kk}))
   }
 
   if (p==2) {

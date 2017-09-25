@@ -6,8 +6,8 @@
 using namespace Rcpp;
 
 // SMED_selectC
-IntegerVector SMED_selectC(Function f, int n, NumericMatrix X0, NumericMatrix Xopt);
-RcppExport SEXP SMED_SMED_selectC(SEXP fSEXP, SEXP nSEXP, SEXP X0SEXP, SEXP XoptSEXP) {
+IntegerVector SMED_selectC(Function f, int n, NumericMatrix X0, NumericMatrix Xopt, NumericVector theta);
+RcppExport SEXP _SMED_SMED_selectC(SEXP fSEXP, SEXP nSEXP, SEXP X0SEXP, SEXP XoptSEXP, SEXP thetaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -15,7 +15,35 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type X0(X0SEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type Xopt(XoptSEXP);
-    rcpp_result_gen = Rcpp::wrap(SMED_selectC(f, n, X0, Xopt));
+    Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
+    rcpp_result_gen = Rcpp::wrap(SMED_selectC(f, n, X0, Xopt, theta));
     return rcpp_result_gen;
 END_RCPP
+}
+// SMED_selectYC
+IntegerVector SMED_selectYC(int n, NumericMatrix X0, NumericMatrix Xopt, NumericVector Y0, NumericVector Yopt, NumericVector theta);
+RcppExport SEXP _SMED_SMED_selectYC(SEXP nSEXP, SEXP X0SEXP, SEXP XoptSEXP, SEXP Y0SEXP, SEXP YoptSEXP, SEXP thetaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type X0(X0SEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Xopt(XoptSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Y0(Y0SEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Yopt(YoptSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
+    rcpp_result_gen = Rcpp::wrap(SMED_selectYC(n, X0, Xopt, Y0, Yopt, theta));
+    return rcpp_result_gen;
+END_RCPP
+}
+
+static const R_CallMethodDef CallEntries[] = {
+    {"_SMED_SMED_selectC", (DL_FUNC) &_SMED_SMED_selectC, 5},
+    {"_SMED_SMED_selectYC", (DL_FUNC) &_SMED_SMED_selectYC, 6},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_SMED(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }

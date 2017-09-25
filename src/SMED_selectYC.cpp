@@ -13,12 +13,13 @@ using namespace Rcpp;
 
 //' Select points using SMED
 //'
-//' SMED_selectC uses C code and should run faster than SMED_select
+//' SMED_selectYC takes in Y values instead of a function. It
+//' uses C code and should run faster than SMED_select
 //'
 //' @export
 //' @rdname SMED_select
 // [[Rcpp::export]]
-IntegerVector SMED_selectC(Function f, int n, NumericMatrix X0, NumericMatrix Xopt, NumericVector theta = NumericVector::create()) {
+IntegerVector SMED_selectYC(int n, NumericMatrix X0, NumericMatrix Xopt, NumericVector Y0, NumericVector Yopt, NumericVector theta = NumericVector::create()) {
   int p = X0.ncol();
   int k = 4 * p;
 
@@ -32,28 +33,28 @@ IntegerVector SMED_selectC(Function f, int n, NumericMatrix X0, NumericMatrix Xo
   //Rcout << theta << "\n";
 
   // initiate values for X0
-  NumericVector Y(X0.nrow());
-  for (int i=0; i < Y.size(); ++i) {
-    Y[i] = as<double>(f(X0(i, _)));
-  }
+  //NumericVector Y(X0.nrow());
+  //for (int i=0; i < Y.size(); ++i) {
+  //  Y[i] = as<double>(f(X0(i, _)));
+  //}
   NumericVector qqX(X0.nrow());
   for (int i=0; i < qqX.size(); ++i) {
-    qqX[i] = pow(Y[i], -1.0 / (2 * p));
+    qqX[i] = pow(Y0[i], -1.0 / (2 * p));
   }
   //Rcout << qqX << "\n";
 
   // initiate values for Xopt
-  NumericVector Yopt(Xopt.nrow());
-  for (int i=0; i < Yopt.size(); ++i) {
-    Yopt[i] = as<double>(f(Xopt(i, _)));
-  }
+  //NumericVector Yopt(Xopt.nrow());
+  //for (int i=0; i < Yopt.size(); ++i) {
+  //  Yopt[i] = as<double>(f(Xopt(i, _)));
+  //}
   NumericVector qqXopt(Xopt.nrow());
   for (int i=0; i < qqXopt.size(); ++i) {
     qqXopt[i] = pow(Yopt[i], -1.0 / (2 * p));
   }
   //Rcout << qqXopt << "\n";
 
-  double Delta = .01 * max(Y);
+  double Delta = .01 * max(Y0);
   //LogicalVector keepDelta = (Y > Delta);
   IntegerVector XoptSelectedIndsOrder(n);
   LogicalVector XoptSelected(Xopt.nrow(), false);
@@ -79,7 +80,7 @@ IntegerVector SMED_selectC(Function f, int n, NumericMatrix X0, NumericMatrix Xo
         funcVal = 0;
         // Loop over X0 (keptDelta) and selected Xopt to get funcVal
         for(int l = 0; l < X0.nrow(); ++l) {
-          if (Y[l] >= Delta) {
+          if (Y0[l] >= Delta) {
             dist = sum(pow(Xopt(j, _) - X0(l, _), 2) * theta); // Adding theta to scale distance by dimension
             //funcVals[j] += pow(qqX[l] / sqrt(dist), k);
             funcVal += pow(qqX[l] / sqrt(dist), k);

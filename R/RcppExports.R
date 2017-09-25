@@ -2,8 +2,23 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #' Select points using SMED
+#'
+#' SMED_selectC uses C code and should run faster than SMED_select
+#'
 #' @export
-SMED_selectC <- function(f, n, X0, Xopt) {
-    .Call('SMED_SMED_selectC', PACKAGE = 'SMED', f, n, X0, Xopt)
+#' @rdname SMED_select
+SMED_selectC <- function(f, n, X0, Xopt, theta = as.numeric( c())) {
+    .Call('_SMED_SMED_selectC', PACKAGE = 'SMED', f, n, X0, Xopt, theta)
+}
+
+#' Select points using SMED
+#'
+#' SMED_selectYC takes in Y values instead of a function. It
+#' uses C code and should run faster than SMED_select
+#'
+#' @export
+#' @rdname SMED_select
+SMED_selectYC <- function(n, X0, Xopt, Y0, Yopt, theta = as.numeric( c())) {
+    .Call('_SMED_SMED_selectYC', PACKAGE = 'SMED', n, X0, Xopt, Y0, Yopt, theta)
 }
 

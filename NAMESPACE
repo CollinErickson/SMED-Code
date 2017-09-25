@@ -2,5 +2,6 @@
 
 export(SMED_select)
 export(SMED_selectC)
+export(SMED_selectYC)
 importFrom(Rcpp,evalCpp)
 useDynLib(SMED)
