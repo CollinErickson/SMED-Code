@@ -24,6 +24,10 @@ SMED_select(f, n = 1, X0 = NULL, Xopt = NULL, theta = rep(1, ncol(X0)),
 
 \item{theta}{Correlation parameters in each dimension for distance scaling}
 
+\item{Y0}{Y values for X0}
+
+\item{Yopt}{Y values for Xopt}
+
 \item{useC}{Should SMED_select call SMED_selectC?}
 }
 \value{
@@ -44,6 +48,7 @@ Xopt <- matrix(c(.45,.5,.5,.2),ncol=2,byrow=TRUE)
 Y0 <- c(.3,.5)
 Yopt <- c(.2,.6)
 SMED_selectYC(n, X0, Xopt, Y0, Yopt)
+
 X0 <- matrix(c(.45,.1,.55,.9),ncol=2,byrow=TRUE)
 Xopt <- matrix(c(.45,.5,.5,.2),ncol=2,byrow=TRUE)
 plot(NULL, xlim=c(0,1), ylim=c(0,1))

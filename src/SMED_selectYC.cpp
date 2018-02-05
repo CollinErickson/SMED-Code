@@ -16,6 +16,8 @@ using namespace Rcpp;
 //' SMED_selectYC takes in Y values instead of a function. It
 //' uses C code and should run faster than SMED_select
 //'
+//' @param Y0 Y values for X0
+//' @param Yopt Y values for Xopt
 //' @examples
 //' n = 1
 //' X0 <- matrix(c(.45,.1,.55,.9),ncol=2,byrow=TRUE)
@@ -23,6 +25,7 @@ using namespace Rcpp;
 //' Y0 <- c(.3,.5)
 //' Yopt <- c(.2,.6)
 //' SMED_selectYC(n, X0, Xopt, Y0, Yopt)
+//'
 //' @export
 //' @rdname SMED_select
 // [[Rcpp::export]]
