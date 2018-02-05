@@ -36,14 +36,3 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-
-static const R_CallMethodDef CallEntries[] = {
-    {"_SMED_SMED_selectC", (DL_FUNC) &_SMED_SMED_selectC, 5},
-    {"_SMED_SMED_selectYC", (DL_FUNC) &_SMED_SMED_selectYC, 6},
-    {NULL, NULL, 0}
-};
-
-RcppExport void R_init_SMED(DllInfo *dll) {
-    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
-    R_useDynamicSymbols(dll, FALSE);
-}

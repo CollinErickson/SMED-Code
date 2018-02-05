@@ -2,7 +2,7 @@
 #'
 #' SMED_select: R implementation
 #'
-#' @useDynLib SMED
+#' @useDynLib SMED, .registration=TRUE
 #' @importFrom Rcpp evalCpp
 #' @param f Function
 #' @param n Number of points to select

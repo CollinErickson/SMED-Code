@@ -8,7 +8,7 @@
 #' @export
 #' @rdname SMED_select
 SMED_selectC <- function(f, n, X0, Xopt, theta = as.numeric( c())) {
-    .Call('_SMED_SMED_selectC', PACKAGE = 'SMED', f, n, X0, Xopt, theta)
+    .Call(`_SMED_SMED_selectC`, f, n, X0, Xopt, theta)
 }
 
 #' Select points using SMED
@@ -16,9 +16,16 @@ SMED_selectC <- function(f, n, X0, Xopt, theta = as.numeric( c())) {
 #' SMED_selectYC takes in Y values instead of a function. It
 #' uses C code and should run faster than SMED_select
 #'
+#' @examples
+#' n = 1
+#' X0 <- matrix(c(.45,.1,.55,.9),ncol=2,byrow=TRUE)
+#' Xopt <- matrix(c(.45,.5,.5,.2),ncol=2,byrow=TRUE)
+#' Y0 <- c(.3,.5)
+#' Yopt <- c(.2,.6)
+#' SMED_selectYC(n, X0, Xopt, Y0, Yopt)
 #' @export
 #' @rdname SMED_select
 SMED_selectYC <- function(n, X0, Xopt, Y0, Yopt, theta = as.numeric( c())) {
-    .Call('_SMED_SMED_selectYC', PACKAGE = 'SMED', n, X0, Xopt, Y0, Yopt, theta)
+    .Call(`_SMED_SMED_selectYC`, n, X0, Xopt, Y0, Yopt, theta)
 }
 
