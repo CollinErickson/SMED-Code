@@ -7,13 +7,15 @@
 #' @param opt.method Optimization method. Current options are 'genoud', 'LHS'.
 #' @param contour.fit Number of iterations after which to plot model contour plot.
 #' @param continue.option If TRUE, you are given choice to continue sampling
+#' @param max.time max.time for GenSA optimization for each point
+#' @importFrom grDevices rgb
 #'
 #' @return X, design matrix, and Y, function values at design points.
 #' @export
 #'
 #' @examples
-#' SMED_GP_2D(TestFunctions::banana,10,10, GP.package='laGP')
-SMED_GP_2D <- function(f,n0=10,n=10,GP.package='',opt.method='genoud',contour.fit=1,continue.option=F) {
+#' SMED_GP_2D(TestFunctions::banana,10,10, GP.package='laGP', contour.fit=0, max.time=.1)
+SMED_GP_2D <- function(f,n0=10,n=10,GP.package='',opt.method='genoud',contour.fit=1,continue.option=F, max.time=NULL) {
   # Function that implements SMED with GP in 2 dimensions. Using the GP means you
   #  only get the function value from points you have selected, selection is
   #  based on the GP model predictions
@@ -33,6 +35,9 @@ SMED_GP_2D <- function(f,n0=10,n=10,GP.package='',opt.method='genoud',contour.fi
   p <- 2 # dimension
   k <- 4 * p # MED distance power, k=4p is recommended by Roshan
 
+  GenSA.controls <- list(trace.mat=F) # Optimization parameters
+  if(!is.null(max.time)) GenSA.controls[['max.time']] <- max.time
+
   # source('TestFunctions.R') # Not sure if I should source test functions here or outside
   # source('myfilledcontour.R') # Source myfilledcontour.R to get contour plots
   # require('contourfilled') # Contour functions should come from package
@@ -41,21 +46,21 @@ SMED_GP_2D <- function(f,n0=10,n=10,GP.package='',opt.method='genoud',contour.fi
   # Set GP functions for each package
   #  Need functions for init, update, predict, and delete
   if(GP.package=='GPfit') {
-    require('GPfit')
+    # require('GPfit')
     predict.GP.SMED <- function(mod,xx){max(1e-16,GPfit::predict.GP(mod,matrix(xx,1,2))$Y_hat)}
     init.GP.SMED <- GPfit::GP_fit
     update.GP.SMED <- function(mod,X,Y){GPfit::GP_fit(X,Y)}
     delete.GP.SMED <- function(mod){}
   } else if(GP.package=='laGP') {
-    require('laGP')
+    # require('laGP')
     init.GP.SMED <- function(X,Y) {laGP::newGPsep(X=X,Z=Y,d=2,g=1e-8)}
     # update.GP.SMED <- function(mod,X,Y) {laGP::updateGPsep(gpsepi=mod,X=X,Z=Y);return(mod)} # Would need only new X and Y
     update.GP.SMED <- function(mod,X,Y) {laGP::deleteGPsep(mod);laGP::newGPsep(X=X,Z=Y,d=2,g=1e-8)}
-    predict.GP.SMED <- function(mod,xx){max(1e-16,laGP::predGPsep(mod,matrix(xx,1,2))$mean)}
+    predict.GP.SMED <- function(mod,xx){max(1e-16,laGP::predGPsep(mod,if (is.matrix(xx)) xx else matrix(xx,1,2))$mean)}
       # Changed this predict, really bad now
     delete.GP.SMED <- laGP::deleteGPsep
   } else if(GP.package=='mlegp') {
-    require('mlegp')
+    # require('mlegp')
     predict.GP.SMED <- function(mod,xx) {max(1e-16,mlegp::predict.gp(object=mod,newData=xx))}
     init.GP.SMED <- function(X,Y) {mlegp::mlegp(X=X,Z=Y,verbose=0)}
     update.GP.SMED <- function(mod,X,Y) {mlegp::mlegp(X=X,Z=Y,verbose=0)}
@@ -92,7 +97,7 @@ SMED_GP_2D <- function(f,n0=10,n=10,GP.package='',opt.method='genoud',contour.fi
   # Get contour plot
   #my.filled.contour.func(fn=f,n=nc)
   # contourfilled.func(fn=f,n=nc)
-  reset.plot <- ContourFunctions::cf(f, reset.par=F)
+  reset.plot <- ContourFunctions::cf(f, reset.par=F, batchmax=Inf)
 
   # Initialize with LHS
   X <- lhs::maximinLHS(n=n0,k=2)
@@ -113,7 +118,7 @@ SMED_GP_2D <- function(f,n0=10,n=10,GP.package='',opt.method='genoud',contour.fi
       #my.filled.contour.func(function(xx)predict.GP.SMED(mod,xx))
       # contourfilled.func(function(xx)predict.GP.SMED(mod,xx))
       reset.plot()
-      reset.plot <- ContourFunctions::cf_func(function(xx)predict.GP.SMED(mod,xx), reset.par=F)
+      reset.plot <- ContourFunctions::cf_func(function(xx)predict.GP.SMED(mod,xx), reset.par=F, batchmax=Inf)
       text(x=X[,1],y=X[,2],col=ifelse(keep.Delta,'magenta','springgreen3'))
     }
     # Perform optimzation to select next point, use log scale
@@ -123,6 +128,7 @@ SMED_GP_2D <- function(f,n0=10,n=10,GP.package='',opt.method='genoud',contour.fi
                       ,nvars=2,max.generations=3,hard.generation.limit=T
                       ,Domains=matrix(c(0,0,1,1),2,2,byrow=F),boundary.enforcement=T,pop.size=50
                       ,print.level=0
+                      ,control = GenSA.controls
                       )
     } else if (opt.method == 'LHS') { # Optimization method: check a bunch of LHS points, NOT GOOD
       #browser()
@@ -155,7 +161,14 @@ SMED_GP_2D <- function(f,n0=10,n=10,GP.package='',opt.method='genoud',contour.fi
     if(continue.option==T & i==n) {
       n.more <- as.integer(readline(prompt = 'How many more? '))
       if(n.more==-1) {browser();n.more <- as.integer(readline(prompt = 'How many more? '))}
-      if(n.more==-2) {browser();my.filled.contour.func(function(xx){log(f_min(xx,X[keep.Delta,],kk=k,mod=mod))},n=30);n.more <- as.integer(readline(prompt = 'How many more? '))}
+      # if(n.more==-2) {browser();my.filled.contour.func(function(xx){log(f_min(xx,X[keep.Delta,],kk=k,mod=mod))},n=30);n.more <- as.integer(readline(prompt = 'How many more? '))}
+      if(n.more==-2) {
+        browser()
+        reset.func()
+        reset.func <- ContourFunctions::cf_func(
+          function(xx){log(f_min(xx,X[keep.Delta,],kk=k,mod=mod))},reset.par=F)
+        n.more <- as.integer(readline(prompt = 'How many more? '))
+      }
       if(is.integer(n.more) & length(n.more)==1 & !is.na(n.more)) {n <- n + n.more}
     }
     i <- i + 1
@@ -164,7 +177,7 @@ SMED_GP_2D <- function(f,n0=10,n=10,GP.package='',opt.method='genoud',contour.fi
   #my.filled.contour.func(function(xx)predict.GP.SMED(mod,xx))
   # contourfilled.func(function(xx)predict.GP.SMED(mod,xx))
   reset.plot()
-  reset.plot <- ContourFunctions::cf_func(function(xx)predict.GP.SMED(mod,xx), reset.par=F)
+  reset.plot <- ContourFunctions::cf_func(function(xx)predict.GP.SMED(mod,xx), reset.par=F, batchmax=Inf)
   text(x=X[,1],y=X[,2],col='magenta')
   # Delete model if needed (only laGP)
   delete.GP.SMED(mod)
