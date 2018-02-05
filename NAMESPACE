@@ -3,6 +3,7 @@
 export(SMED)
 export(SMED_1D)
 export(SMED_2D)
+export(SMED_GP_2D)
 export(SMED_select)
 export(SMED_selectC)
 export(SMED_selectYC)
