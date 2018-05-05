@@ -71,7 +71,7 @@ IntegerVector SMED_selectYC(int n, NumericMatrix X0, NumericMatrix Xopt, Numeric
 
 
   //double total = 0;
-  double dist = 0;
+  double dist2 = 0; // distance squared
   double funcValMin = 0; // Shouldnt need to be initialized
   double funcValMinInd = -1;
   double funcVal;
@@ -91,17 +91,17 @@ IntegerVector SMED_selectYC(int n, NumericMatrix X0, NumericMatrix Xopt, Numeric
         // Loop over X0 (keptDelta) and selected Xopt to get funcVal
         for(int l = 0; l < X0.nrow(); ++l) {
           if (Y0[l] >= Delta) {
-            dist = sum(pow(Xopt(j, _) - X0(l, _), 2) * theta); // Adding theta to scale distance by dimension
-            //funcVals[j] += pow(qqX[l] / sqrt(dist), k);
-            funcVal += pow(qqX[l] / sqrt(dist), k);
+            dist2 = sum(pow(Xopt(j, _) - X0(l, _), 2) * theta); // Adding theta to scale distance by dimension
+            //funcVals[j] += pow(qqX[l] / sqrt(dist2), k);
+            funcVal += pow(qqX[l] / sqrt(dist2), k);
           }
         }
         // Loop over points already selected
         for(int l = 0; l < Xopt.nrow(); ++l) {
           if (XoptSelected[l]) {
-            dist = sum(pow(Xopt(j, _) - Xopt(l, _), 2) * theta); // Add theta here too
-            //funcVals[j] += pow(qqXopt[l] / sqrt(dist), k);
-            funcVal += pow(qqXopt[l] / sqrt(dist), k);
+            dist2 = sum(pow(Xopt(j, _) - Xopt(l, _), 2) * theta); // Add theta here too
+            //funcVals[j] += pow(qqXopt[l] / sqrt(dist2), k);
+            funcVal += pow(qqXopt[l] / sqrt(dist2), k);
           }
         }
 
